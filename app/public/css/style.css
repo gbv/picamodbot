@@ -1,0 +1,31 @@
+
+body {
+    font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana";
+    font-size: 13px;
+    color: #333;
+}
+
+h1 {
+    font-size: 28px;
+    color: #000;
+}
+
+a  { 
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+code, tt {
+    font-family: 'Andale Mono', Monaco, 'Liberation Mono', 'Bitstream Vera Sans Mono', 'DejaVu Sans Mono', monospace;
+}
+
+#footer {
+    clear: both;
+    padding-top: 2em;
+    text-align: center;
+    padding-right: 160px;
+    font-family: sans-serif;
+    font-size: 10px;
+}
