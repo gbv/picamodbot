@@ -1,148 +1,55 @@
+<p>
+  Diese Webanwendung nimmt <a href="#api">über eine HTTP-API</a> Änderungswünsche
+  an PICA+ Datensätzen entgegen und verteilt sie zur Ausführung. Über folgendes
+  Format können Anfragen an die API formuliert werden:
+</p>
+
+[% INCLUDE "webapi.tt" %]
+
+<h2 id="api">Die API</h2>
+<p>
+  Die HTTP-API ist unter <a href="[% request.base_uri %]/api">[% request.base_uri %]/api</a>
+  zugänglich. Folgende Parameter werden unterstützt:
   
-<!-- 
-    Credit goes to the Ruby on Rails team for this page 
-    has been heavily based on the default Rails page that is 
-    built with a scaffolded application.
-
-    Thanks a lot to them for their work.
-
-    See Ruby on Rails if you want a kickass framework in Ruby:
-    http://www.rubyonrails.org/
--->
-
-<div id="page">
-      <div id="sidebar">
-        <ul id="sidebar-items">
-          <li>
-            <h3>Join the community</h3>
-            <ul class="links">
-
-              <li><a href="http://perldancer.org/">PerlDancer</a></li>
-              <li><a href="http://twitter.com/PerlDancer/">Official Twitter</a></li>
-              <li><a href="http://github.com/sukria/Dancer/">GitHub Community</a></li>
-            </ul>
-          </li>
-          
-          <li>
-            <h3>Browse the documentation</h3>
-
-            <ul class="links">
-              <li><a
-              href="http://search.cpan.org/dist/Dancer/lib/Dancer/Introduction.pod">Introduction</a></li>
-              <li><a href="http://search.cpan.org/dist/Dancer/lib/Dancer/Cookbook.pod">Cookbook</a></li>
-              <li><a href="http://search.cpan.org/dist/Dancer/lib/Dancer/Deployment.pod">Deployment Guide</a></li>
-              <li><a
-              href="http://search.cpan.org/dist/Dancer/lib/Dancer/Tutorial.pod"
-              title="a tutorial to build a small blog engine with Dancer">Tutorial</a></li>
-            </ul>
-          </li>
-
-          <li>
-            <h3>Your application's environment</h3>
-
-            <ul>
-                <li>Location: <code>/home/voj/proj/picamodbot/picamodbot</code></li>
-                <li>Template engine: <code><% settings.template %></code></li>
-                <li>Logger: <code><% settings.logger %></code></li>
-                <li>Environment: <code><% settings.environment %></code></li>
-            </ul>
-
-          </li>
-        </ul>
-
-      </div>
-
-      <div id="content">
-        <div id="header">
-          <h1>Perl is dancing</h1>
-          <h2>You&rsquo;ve joined the dance floor!</h2>
-        </div>
-
-        <div id="getting-started">
-          <h1>Getting started</h1>
-          <h2>Here&rsquo;s how to get dancing:</h2>
-                    
-          <h3><a href="#" id="about_env_link">About your application's environment</a></h3>
-
-          <div id="about-content" style="display: none;">
-            <table>
-                <tbody>
-                <tr>
-                    <td>Perl version</td>
-                    <td><tt><% perl_version %></tt></td>
-                </tr>
-                <tr>
-                    <td>Dancer version</td>
-                    <td><tt><% dancer_version %></tt></td>
-                </tr>
-                <tr>
-                    <td>Backend</td>
-                    <td><tt><% settings.apphandler %></tt></td>
-                </tr>
-                <tr>
-                    <td>Appdir</td>
-                    <td><tt>/home/voj/proj/picamodbot/picamodbot</tt></td>
-                </tr>
-                <tr>
-                    <td>Template engine</td>
-                    <td><tt><% settings.template %></tt></td>
-                </tr>
-                <tr>
-                    <td>Logger engine</td>
-                    <td><tt><% settings.logger %></tt></td>
-                </tr>
-                <tr>
-                    <td>Running environment</td>
-                    <td><tt><% settings.environment %></tt></td>
-                </tr>
-                </tbody>
-            </table>
-          </div>
-
-    <script type="text/javascript">
-    $('#about_env_link').click(function() {
-        $('#about-content').slideToggle('fast', function() {
-            // ok
-        });
-        return( false );
-    });
-    </script>
-
-
-          <ol>          
-            <li>
-              <h2>Tune your application</h2>
-
-              <p>
-              Your application is configured via a global configuration file,
-              <tt>config.yml</tt> and an "environment" configuration file,
-              <tt>environments/development.yml</tt>. Edit those files if you
-              want to change the settings of your application.
-              </p>
-            </li>
-
-            <li>
-              <h2>Add your own routes</h2>
-
-              <p>
-              The default route that displays this page can be removed,
-              it's just here to help you get started. The template used to
-              generate this content is located in 
-              <code>views/index.tt</code>.
-              You can add some routes to <tt>lib/picamodbot.pm</tt>. 
-              </p>
-            </li>
-
-            <li>
-                <h2>Enjoy web development again</h2>
-
-                <p>
-                Once you've made your changes, restart your standalone server
-                (bin/app.pl) and you're ready to test your web application.
-                </p>
-            </li>
-
-          </ol>
-        </div>
-      </div>
-    </div>
+  <table class="table table-striped">
+   <thead>
+    <tr>
+	 <th>Parameter</th>
+	 <th>Form</th>
+	 <th>Beschreibung</th>
+	</tr>
+   </thead>
+   <tbody>
+    <tr>
+	 <td><code>id</code></td>
+	 <td><code><b>{DBKEY}</b>:ppn:<b>{PPN}</b></code></td>
+	 <td>
+	   Auswahl eines PICA+ Datensatz über eine Kombination aus 
+	   Datenbank (DBKEY) und PPN (PPN).
+	 </td>
+	</tr>
+    <tr>
+	 <td><code>deltags</code></td>
+     <td><code><b>{TAG}</b>(,<b>{TAG}</b>)*</code></td>
+	 <td>Liste von PICA+ Tags, deren Felder gelöscht werden sollen.</td>
+	</tr>
+    <tr>
+	 <td><code>add</code></td>
+     <td>PICA+ Format</td>
+	 <td>Fragment eines PICA+ Datensatz mit Feldern, die hinzugefügt werden sollen.
+	     Im einfachsten Fall besteht das Fragment aus einem einzelnen PICA+ Feld.
+		 Bislang werden nur Felder der Ebene 0 und der Ebene 2 unterstützt.
+	 </td>
+	</tr>
+    <tr>
+	 <td><code>iln</code></td>
+     <td>Zahl</td>
+	 <td>ILN der Einrichtung, für die die Änderung vorgenommen werden soll.
+	     Für PICA+ Felder der Ebene 2 ist diese Angabe notwendig, um die Felder
+		 der entsprechenden Einrichtung zuzuordnen.</td>
+	</tr>
+   </tbody>
+  </table>
+  Der Rückgabewert ist ein JSON-Objekt, das im Fehlerfall das Feld <code>error</code>
+  enthält. Im Erfolgsfall enthält die Antwort die (ggf. bereinigten) Anfrageparameter.
+</p>

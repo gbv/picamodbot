@@ -1,0 +1,24 @@
+[% IF error %]
+  <div class="alert alert-block alert-error">
+    <a href="#" class="close" data-dismiss="alert">×</a>
+    <p>[% error %]</p>
+  </div>
+[% END %]
+[% IF warning %]
+  <div class="alert alert-block alert-warning">
+    <a href="#" class="close" data-dismiss="alert">×</a>
+    <p>[% warning %]</p>
+  </div>
+[% END %]
+[% IF info %]
+  <div class="alert alert-block alert-info">
+    <a href="#" class="close" data-dismiss="alert">×</a>
+    <p>[% info %]</p>
+  </div>
+[% END %]
+[% IF success %]
+  <div class="alert alert-block alert-success">
+    <a href="#" class="close" data-dismiss="alert">×</a>
+    <p>[% success %]</p>
+  </div>
+[% END %]

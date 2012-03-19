@@ -1,0 +1,53 @@
+<h2>Änderung anmelden</h2>
+<form action="[% request.base_uri %]/webapi" method="post">
+<div class="row">
+ <div class="span4">
+   <fieldset class="control-group [% IF badparam.id %]error[% END %]">
+     <label for="id">Record ID</label>
+     <input class="span4" id="id" name="id" value="[% id|html %]"/>
+   </fieldset>
+ </div>
+ <div class="span1">
+   <fieldset class="control-group [% IF badparam.iln %]error[% END %]">
+     <label for="iln">ILN</label>
+     <input class="span1" id="iln" name="iln" value="[% iln|html %]"/>
+   </fieldset>
+ </div>
+ <div class="span4">
+   <fieldset class="control-group [% IF badparam.deltags %]error[% END %]">
+     <label for="deltags">Delete Tags</label>
+     <input class="span4" id="deltags" name="deltags" value="[% deltags|html %]"/>
+   </fieldset>
+ </div>
+ <div class="span3">
+  [% IF badparam.deltags %]
+      <label>&#xA0;</label>
+      <span class="badge badge-error">invalid values submitted</span>
+  [% END %]
+ </div>
+</div>
+<fieldset id="CodeMirror-add" class="control-group [% IF badparam.add %]error[% END %]">
+  <label for="add">Add PICA+</label>
+  <textarea id="add" name="add" rows="4">[% add|html %]</textarea>
+</fieldset>
+<div class="form-actions">
+  <input type="submit" class="btn btn-primary" value="Submit" />
+  <input type="submit" class="btn btn-success" value="Preview" />
+  <a href="[% request.base_uri %]" class="btn">Cancel</a>
+</div>
+</form>
+
+<script>
+var myTextarea = document.getElementById("add");
+var picaedit = CodeMirror.fromTextArea( myTextarea, {
+  lineNumbers: true,
+  mode: "pica",
+  onChange: function(editor,tc) { /* ... */ },
+  autoClearEmptyLines: true
+});
+</script>
+
+
+
+
+
