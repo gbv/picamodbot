@@ -15,7 +15,7 @@
   <tbody>
 [% FOREACH c IN changes %]
    <tr>
-    <td>[% c.edit %]</td>
+    <td><a href="[% base_uri %]/edit/[% c.edit %]">[% c.edit %]</a></td>
 	<td>[% c.created %]</td>
     <td><a href="http://unapi.gbv.de/?id=[% c.record %]">[% c.record %]</td>
     <td>[% c.iln %]</td>

@@ -15,7 +15,9 @@ WriteMakefile(
         'Test::More'    => 0,
         'YAML'          => 0,
         'Dancer'        => 1.3091,
+        'Dancer::Plugin::Database' => 1.80,
         'PICA::Record'  => 0,
+        'Test::JSON::Entails' => 0.1,
         # ...
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

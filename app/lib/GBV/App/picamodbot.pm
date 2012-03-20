@@ -1,10 +1,10 @@
 package PICA::App::picamodbot;
-use Dancer ':syntax';
 
 use 5.010;
 use strict;
 use warnings;
 
+use Dancer ':syntax';
 use PICA::Record;
 use Dancer::Plugin::Database;
 use Dancer::Plugin::REST;
@@ -134,18 +134,51 @@ post '/webapi' => sub {
 	}
 };
 
+
+## REST API ####################################################################
+
+sub get_edit {
+    # TODO: weitere Anfrage-Parameter
+    my $edit = database->quick_select( 'changes', { edit => param('id') } );
+    if ($edit) {
+        return $edit;
+    } else {
+        status(404); # not found
+        { error => "edit not found" };
+    };
+}
+
+sub create_edit {
+    my $edit = check_params;
+    submit_change($edit);
+    if ($edit->{error}) {
+        status(500); # $edit;
+    } else {
+        status(202); # accepted
+    }
+    return $edit;
+}
+
+sub reject_edit {
+    status(503);
+    return { "error" => "Service Unavailable" };
+}
+
+sub delete_edit { # alles ok
+    # status(403); # Forbidden
+    status(503);
+    return { "error" => "Service Unavailable" };
+};
+
 set serializer => 'JSON';
 
-any '/api' => sub {
-	my $vars = check_params;
-	submit_change($vars);
-	return $vars;
-};
+get '/edit' =>  \&get_edit;
 
-any '/done' => sub {
-	return { "error" => "noch nicht unterstützt" };
-};
-
+resource 'edit' =>
+    get    => \&get_edit,
+    create => \&create_edit,
+    delete => \&delete_edit,
+    update => \&reject_edit;
 
 ################################################################################
 
@@ -200,5 +233,11 @@ SQL
 
 }
 
-init_db;
+my $db_init = 0;
+hook 'before' => sub {
+    return if $db_init;
+    $db_init = 1;
+    init_db;
+};
+
 true;

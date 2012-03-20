@@ -9,8 +9,8 @@
 <h2 id="api">Die API</h2>
 <h3>Änderungen anmelden</h3>
 <p>
-  Die HTTP-API ist unter <a href="[% request.base_uri %]/api">[% request.base_uri %]/api</a>
-  zugänglich. Folgende Parameter werden unterstützt:
+  Die HTTP-API ist unter <a href="[% request.base_uri %]/edit">[% request.base_uri %]/edit</a>
+  per HTTP POST zugänglich. Folgende Parameter werden für POST unterstützt:
   
   <table class="table table-striped">
    <thead>
