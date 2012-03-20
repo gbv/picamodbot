@@ -1,6 +1,8 @@
+This application is used to collect change requests in PICA+ records.
+
 ## Installation
 
-To deploy this application on your dotCloud account:
+To deploy this application on your [dotCloud] account:
 
     dotcloud push picamodbot
 
@@ -13,6 +15,7 @@ For the User Interface (HTML+CSS+JavaScript) this repository contains
 Javascript and CSS code from [Bootstrap], [jQuery], and [picatextarea] (based
 on [CodeMirror]).
 
+[dotCloud]: http://dotcloud.com/
 [Dancer]: http://perldancer.org
 [PICA::Record]: http://search.cpan.org/dist/PICA-Record/
 [TemplateToolkit]: http://template-toolkit.org/
