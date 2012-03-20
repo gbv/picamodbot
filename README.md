@@ -1,3 +1,9 @@
+## Installation
+
+To deploy this application on your dotCloud account:
+
+    dotcloud push picamodbot
+
 ## Credits
 
 This application is based on [Dancer], [PICA::Record], and [TemplateToolkit]
