@@ -7,21 +7,22 @@ use warnings;
 
 use PICA::Record;
 use Dancer::Plugin::Database;
+use Dancer::Plugin::REST;
 
 our $VERSION = '0.1';
 
 my %PARAM = (
-	id 		=> qr{[a-z]([a-z0-9-]?[a-z0-9])*:ppn:\d+[0-9Xx]},
-	deltags => qr{[01]\d\d[A-Z@](/\d\d)?(,[01]\d\d[A-Z@](/\d\d)?)*},
-	add 	=> qr{},
-	iln 	=> qr{\d*},
+	record	  => qr{[a-z]([a-z0-9-]?[a-z0-9])*:ppn:\d+[0-9Xx]},
+	deltags   => qr{[01]\d\d[A-Z@](/\d\d)?(,[01]\d\d[A-Z@](/\d\d)?)*},
+	addfields => qr{.*},
+	iln 	  => qr{\d*},
 );
 
 sub check_params {
 	my $par = { 
 		map { $_ => param($_) // '' } keys %PARAM,
 	};
-	my $badparam = { };
+	my $badquery = { };
 
 	$par->{deltags} =~ s/\s*,+\s*/,/g;
 	$par->{deltags} =~ s/,\s*$//;
@@ -31,36 +32,73 @@ sub check_params {
 		next if $par->{$p} eq '';
 		my $reg = $PARAM{$p};
 		if ($par->{$p} !~ /^$reg$/) {
-			$badparam->{$p} = "invalid format";
+			$badquery->{$p} = "invalid format";
 		}
 	}
 
-	if ($par->{add}) {
-  	    my $pica = eval { PICA::Record->new( $par->{add} ) };
+	if ($par->{addfields}) {
+  	    my $pica = eval { PICA::Record->new( $par->{addfields} ) };
 	    if ($pica) {
-			$par->{add} = "$pica";
+			$par->{addfields} = "$pica";
 	    } else { # TODO: not shown in UI?!
-			$badparam->{add} = "invalid format";
+			$badquery->{addfields} = "invalid format";
 		}
 	}
 
-	$par->{badparam} = $badparam;
+	if (!$par->{record}) {
+		$par->{error} = "missing record ID";
+		$badquery->{record} = "missing";
+	} elsif (!$par->{addfields} and !$par->{deltags}) {
+		$par->{error} = "please provide some changes";
+	}
+
+	if (%$badquery) {
+		$par->{badquery} = $badquery;
+		$par->{error} //= "bad query";
+	}
 	$par;
+}
+
+sub get_changes {
+	my $changes = [ database->quick_select("changes", { }) ]; 
+	foreach my $i ( 0..(@$changes-1) ) {
+		my $pica = $changes->[$i]->{addfields} or next;
+		$pica = PICA::Record->new($pica);
+		$changes->[$i]->{addtags} = "$pica"; # TODO: get tags only
+	}
+	return $changes;
+}
+
+sub change_as_txt {
+	my $c = shift;
+	my $txt = sprintf ":%s\n", join "|", (
+		$c->{edit} // '',
+		$c->{created} // '',
+		$c->{record} // '',
+		$c->{iln} // '',
+		# TODO: STATUS?
+	);
+	if ($c->{deltags}) {
+		$txt .= join("\n", map { "-$_" } split ",", $c->{deltags})."\n";
+	}
+	if ($c->{addfields}) {
+		$txt .= join("\n", map { "+$_" } split "\n", $c->{addfields})."\n";
+	}
+	return $txt;
 }
 
 get '/' => sub {
 	my $pica = <<'PICA';
-203@/99 $056321
-001@ $0x
 204@/99 $xfoo
-This is an error
-123X $a
 PICA
     template 'index', { add => $pica };
 };
 
 get '/changes' => sub {
-	# TODO: list changes
+	template 'changes', {
+		title 	=> 'Änderungen',
+		changes => get_changes,
+	};
 };
 
 get '/edits' => sub {
@@ -68,31 +106,91 @@ get '/edits' => sub {
 };
 
 get '/webapi' => sub {
-    template 'webapi', { };
+    template 'webapi', check_params;
 };
+
+sub submit_change {
+	my $vars = shift;
+	if ($vars->{record} and !$vars->{error}) {
+		database->quick_insert('changes', { 
+			map { $_ => $vars->{$_} } qw(record deltags addfields iln)
+		} );
+		$vars->{success} = "Änderung angenommen!";
+		my $edit = database->last_insert_id("","","","");
+		$vars->{edit} = $edit;
+	}
+	my @empty = grep { !$vars->{$_} } keys %$vars;
+	delete $vars->{$_} for @empty;
+}
 
 post '/webapi' => sub {
 	my $vars = check_params;
-	use Data::Dumper;
-	$vars->{dump} = Dumper($vars);
-	template 'webapi', $vars;
+
+	if (param('preview')) {
+		return (template 'webapi', $vars);
+	} else {
+		submit_change($vars);
+		template 'webapi', $vars;
+	}
+};
+
+set serializer => 'JSON';
+
+any '/api' => sub {
+	my $vars = check_params;
+	submit_change($vars);
+	return $vars;
+};
+
+any '/done' => sub {
+	return { "error" => "noch nicht unterstützt" };
+};
+
+
+################################################################################
+
+prepare_serializer_for_format;
+
+get "/changes.txt" => sub {
+	my $changes = get_changes;
+	my $txt = <<'TXT';
+#
+# This plain text, line based format contains a list of PICA+ record changes.
+#
+# lines that start with `#` are comments. Ignore comments and empty lines
+# lines that start with `-` denote PICA+ tags to remove.
+# lines that start with `|` denote which PICA+ record to modify. Such lines
+#   have format `|id|timestamp|record|iln|` where 
+#     `id` is the unique id of a changeset
+#     `timestamp` is the date and time when the change was received
+#     `record` is the qualified record id (format `DBKEY:ppn:PPN`)
+#     `iln` is the internal library number
+#
+TXT
+	$txt .= join("\n", map { change_as_txt($_) } @$changes)."\n";
+	content_type("text/plain");
+	return $txt;
+};
+
+get "/changes.:format" => sub {
+	{ changes => get_changes };
 };
 
 sub init_db {
 	my $sql = <<'SQL';
 create table if not exists "changes" (
-    change_id integer primary key,
-	record_id not null,
-	received DATETIME DEFAULT CURRENT_TIMESTAMP,
+    edit    INTEGER PRIMARY KEY,
+	record  NOT NULL,
+	created DATETIME DEFAULT CURRENT_TIMESTAMP,
 	deltags,
-	add_record,
+	addfields,
 	iln
 );
 SQL
 	database->do($sql);
 	$sql = <<'SQL';
 create table if not exists "edits" (
-    change_id integer not null,
+    edit 	  INTEGER NOT NULL,
 	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 	status,
 	message

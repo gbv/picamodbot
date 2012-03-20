@@ -1,12 +1,13 @@
 <p>
-  Diese Webanwendung nimmt <a href="#api">über eine HTTP-API</a> Änderungswünsche
-  an PICA+ Datensätzen entgegen und verteilt sie zur Ausführung. Über folgendes
-  Format können Anfragen an die API formuliert werden:
+  Über <a href="#api">eine HTTP-API</a> sammelt diese Webanwendung
+  <a href="[% base_uri %]/changes">Änderungswünsche</a> an PICA+ Datensätzen
+  und gibt bekannt, ob die Änderungen durchgeführt wurden.
 </p>
 
 [% INCLUDE "webapi.tt" %]
 
 <h2 id="api">Die API</h2>
+<h3>Änderungen anmelden</h3>
 <p>
   Die HTTP-API ist unter <a href="[% request.base_uri %]/api">[% request.base_uri %]/api</a>
   zugänglich. Folgende Parameter werden unterstützt:
@@ -21,7 +22,7 @@
    </thead>
    <tbody>
     <tr>
-	 <td><code>id</code></td>
+	 <td><code>record</code></td>
 	 <td><code><b>{DBKEY}</b>:ppn:<b>{PPN}</b></code></td>
 	 <td>
 	   Auswahl eines PICA+ Datensatz über eine Kombination aus 
@@ -53,3 +54,46 @@
   Der Rückgabewert ist ein JSON-Objekt, das im Fehlerfall das Feld <code>error</code>
   enthält. Im Erfolgsfall enthält die Antwort die (ggf. bereinigten) Anfrageparameter.
 </p>
+<h3>Änderungswünsche einsehen</h3>
+<p>Die aktuell vorliegenden Änderungen können unter 
+ <a href="[% base_uri %]/changes">[% base_uri %]/changes</a> 
+ in verschiedenen Formaten (XML, JSON, TXT) abgerufen werden.
+</p>
+<h3>Änderungen vornehmen</h3>
+<p>
+ Die API um Änderungen vorzunehmen, ist <i>nicht offen zugänglich</i>.
+ Mit entsprechender Berechtigung kann an 
+ <a href="[% base_uri %]/done">[% base_uri %]/done</a> eine
+ HTTP-Anfrage geschickt werden. Folgende Parameter werden unterstützt:
+</p>  
+  <table class="table table-striped">
+   <thead>
+    <tr>
+	 <th>Parameter</th>
+	 <th>Form</th>
+	 <th>Beschreibung</th>
+	</tr>
+   </thead>
+   <tbody>
+    <tr>
+	 <td><code>edit</code></td>
+	 <td>Identifier</td>
+	 <td>Änderungs-ID</td>
+	</tr>
+	<tr>
+	 <td><code>record</code></td>
+	 <td><code><b>{DBKEY}</b>:ppn:<b>{PPN}</b></code></td>
+	 <td>Auswahl des PICA+ Datensatz</td>
+	</tr>
+	<tr>
+	 <td><code>status</code></td>
+	 <td><code>done</code> oder <code>rejected</code></td>
+	 <td>Wurde die Änderung durchgeführt?</td>
+	</tr>
+   	<tr>
+	 <td><code>message</code></td>
+	 <td>optional</td>
+	 <td>z.B. Hinweis</td>
+	</tr>
+   </tbody>
+  </table>

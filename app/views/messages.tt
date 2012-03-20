@@ -1,7 +1,7 @@
-[% IF error %]
+[% IF errormessage %]
   <div class="alert alert-block alert-error">
     <a href="#" class="close" data-dismiss="alert">×</a>
-    <p>[% error %]</p>
+    <p>[% errormessage %]</p>
   </div>
 [% END %]
 [% IF warning %]

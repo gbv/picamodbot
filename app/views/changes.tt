@@ -1,0 +1,37 @@
+[% IF changes AND changes.size %]
+<table class="table table-striped table-condensed tablesorter">
+  <thead>
+   <tr>
+    <th>#</th>
+    <th>timestamp</th>
+    <th>record</th>
+    <th>iln</th>
+    <th>delete</th>
+    <th>add</th>
+    <th>status</th>
+    <th></th>
+   </tr>
+  </thead>
+  <tbody>
+[% FOREACH c IN changes %]
+   <tr>
+    <td>[% c.edit %]</td>
+	<td>[% c.created %]</td>
+    <td><a href="http://unapi.gbv.de/?id=[% c.record %]">[% c.record %]</td>
+    <td>[% c.iln %]</td>
+    <td>[% c.deltags|truncate(40) %]</td>
+    <td>[% c.addtags|truncate(40) %]</td>
+    <td><!-- status and date --></td>
+   </tr>
+[% END %] 
+  </tbody>
+</table>
+ <p>
+   Diese Liste als:
+   <a href="[% uri_base %]/changes.xml" class="btn">XML</a>
+   <a href="[% uri_base %]/changes.json" class="btn">JSON</a>
+   <a href="[% uri_base %]/changes.txt" class="btn">TXT</a>
+ </p>
+[% ELSE %]
+ <p>Es liegen keine Änderungen vor.</p>
+[% END %]
