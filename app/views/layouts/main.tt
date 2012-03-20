@@ -39,8 +39,8 @@
   $(function() {
 	$(".alert-block").alert();
 	$(".tablesorter").tablesorter({});
-	$("a.btn-danger").click(function () { return confirm("Sure?!"); };
+	$("a.btn-danger").click(function () { return confirm("Sure?!"); });
 	$(".collapse").collapse();
-  ); });
+  });
 </script>
 </html>

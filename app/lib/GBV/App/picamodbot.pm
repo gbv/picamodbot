@@ -8,6 +8,7 @@ use Dancer ':syntax';
 use PICA::Record;
 use Dancer::Plugin::Database;
 use Dancer::Plugin::REST;
+use LWP::Simple qw();
 
 our $VERSION = '0.1';
 
@@ -48,9 +49,19 @@ sub check_params {
 	if (!$par->{record}) {
 		$par->{error} = "missing record ID";
 		$badquery->{record} = "missing";
-	} elsif (!$par->{addfields} and !$par->{deltags}) {
+	} else {
+        if ($par->{record} !~ /^test/) {
+            my $pica = LWP::Simple::get("http://unapi.gbv.de/?id=".$par->{record}."&format=pp" );
+            $pica = eval { PICA::Record->new( $pica ); };
+            if (!$pica) {
+                $par->{error} = $badquery->{record} = "Datensatz nicht gefunden!";
+            }
+        }
+    }
+
+	if (!$par->{error} and !$par->{addfields} and !$par->{deltags}) {
 		$par->{error} = "please provide some changes";
-	}
+    }
 
 	if (%$badquery) {
 		$par->{badquery} = $badquery;
@@ -59,12 +70,24 @@ sub check_params {
 	$par;
 }
 
+sub get_status {
+    my $id = shift;
+    my $edits = database->quick_select("edits", { edit => $id }, { 
+        order_by => 'timestamp', limit => 1 
+    } );
+#debug($edits);
+    my $status = $edits ? $edits->[0]->{status} : 0;
+    return $status;
+}
+
 sub get_changes {
 	my $changes = [ database->quick_select("changes", { }) ]; 
 	foreach my $i ( 0..(@$changes-1) ) {
-		my $pica = $changes->[$i]->{addfields} or next;
+        my $edit = $changes->[$i];
+		my $pica = $edit->{addfields} or next;
 		$pica = PICA::Record->new($pica);
-		$changes->[$i]->{addtags} = "$pica"; # TODO: get tags only
+		$edit->{addtags} = "$pica"; # TODO: get tags only
+        $edit->{status} = get_status( $edit->{edit} );
 	}
 	return $changes;
 }
@@ -112,8 +135,9 @@ get '/webapi' => sub {
 sub submit_change {
 	my $vars = shift;
 	if ($vars->{record} and !$vars->{error}) {
+        $vars->{ip} = request->address;
 		database->quick_insert('changes', { 
-			map { $_ => $vars->{$_} } qw(record deltags addfields iln)
+			map { $_ => $vars->{$_} } qw(record deltags addfields iln ip)
 		} );
 		$vars->{success} = "Änderung angenommen!";
 		my $edit = database->last_insert_id("","","","");
@@ -141,6 +165,7 @@ sub get_edit {
     # TODO: weitere Anfrage-Parameter
     my $edit = database->quick_select( 'changes', { edit => param('id') } );
     if ($edit) {
+        $edit->{status} = get_status( $edit->{edit} );
         return $edit;
     } else {
         status(404); # not found
@@ -159,12 +184,7 @@ sub create_edit {
     return $edit;
 }
 
-sub reject_edit {
-    status(503);
-    return { "error" => "Service Unavailable" };
-}
-
-sub delete_edit { # alles ok
+sub update_edit {
     # status(403); # Forbidden
     status(503);
     return { "error" => "Service Unavailable" };
@@ -172,13 +192,26 @@ sub delete_edit { # alles ok
 
 set serializer => 'JSON';
 
-get '/edit' =>  \&get_edit;
+get '/edit/:id.html' => sub {
+    my $edit = database->quick_select( 'changes', { edit => param('id') } );
+    my $vars = { edit => $edit };
+    if (!$edit) {
+        status(404);
+        $vars->{title} = "Bearbeitung nicht gefunden";
+    }
+    template 'edit' => $vars;
+};
+
+get '/edit' => \&get_edit;
 
 resource 'edit' =>
     get    => \&get_edit,
     create => \&create_edit,
-    delete => \&delete_edit,
-    update => \&reject_edit;
+    delete => sub {
+        status(503);
+        return { "error" => "Service Unavailable" };
+    },
+    update => \&update_edit;
 
 ################################################################################
 
@@ -217,6 +250,7 @@ create table if not exists "changes" (
 	created DATETIME DEFAULT CURRENT_TIMESTAMP,
 	deltags,
 	addfields,
+    ip,
 	iln
 );
 SQL

@@ -1,0 +1,44 @@
+[% IF edit %]
+<div>
+<table>
+<thead>
+</thead>
+<tbody>
+  <tr>
+    <th style="text-align:right">Eingereicht:</th>
+  <td> [% edit.created %]</td></tr>
+  <tr><td><a href="http://unapi.gbv.de/?id=[% c.record %]&format=picahtml">[% c.record %]</td>
+  <tr>
+    <th style="text-align:right">ILN</th>
+    <td>[% edit.iln %]</td>
+  </tr>
+[% IF edit.deltags %]
+  <tr>
+    <th style="text-align:right">Zu löschende Tags</th>
+    <td>[% edit.deltags|html %]</td>
+  </tr>
+[% END %]
+[% IF edit.addfields %]
+  <tr style="text-align:right">
+    <th>Hinzuzufügende Felder</th>
+    <td>[% edit.addfields|html %]</td>
+  </tr>
+[% END %]
+  <tr>
+    <th style="text-align:right">Status</th>
+    <td>in Bearbeitung</td>
+  </tr>
+</tbody>
+</table> 
+</div>
+
+ <p>
+   Diese Änderung als:
+   <a href="[% uri_base %]/edit/[% edit.edit %].xml" class="btn">XML</a>
+   <a href="[% uri_base %]/edit/[% edit.edit %].json" class="btn">JSON</a>
+ </p>
+[% ELSE %]
+<p>
+  Vorhandene Bearbeitungen siehe unter <a href="[% uri_base %]/changes">Änderungen</a>!
+</p>
+[% END %]

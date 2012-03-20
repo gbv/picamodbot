@@ -15,13 +15,13 @@
   <tbody>
 [% FOREACH c IN changes %]
    <tr>
-    <td><a href="[% base_uri %]/edit/[% c.edit %]">[% c.edit %]</a></td>
+    <td><a href="[% base_uri %]/edit/[% c.edit %].html">[% c.edit %]</a></td>
 	<td>[% c.created %]</td>
-    <td><a href="http://unapi.gbv.de/?id=[% c.record %]">[% c.record %]</td>
+    <td><a href="http://unapi.gbv.de/?id=[% c.record %]&format=picahtml">[% c.record %]</td>
     <td>[% c.iln %]</td>
     <td>[% c.deltags|truncate(40) %]</td>
     <td>[% c.addtags|truncate(40) %]</td>
-    <td><!-- status and date --></td>
+    <td>[% c.status %]<!-- TODO: date --></td>
    </tr>
 [% END %] 
   </tbody>
