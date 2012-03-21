@@ -1,4 +1,4 @@
-package PICA::App::picamodbot;
+package GBV::App::picamodbot;
 
 use 5.010;
 use strict;
@@ -9,6 +9,10 @@ use PICA::Record;
 use Dancer::Plugin::Database;
 use Dancer::Plugin::REST;
 use LWP::Simple qw();
+use YAML;
+
+use GBV::PICA::Edit;
+use Try::Tiny;
 
 our $VERSION = '0.1';
 
@@ -19,55 +23,42 @@ my %PARAM = (
 	iln 	  => qr{\d*},
 );
 
-sub check_params {
-	my $par = { 
-		map { $_ => param($_) // '' } keys %PARAM,
-	};
-	my $badquery = { };
+my $ACCESS_TOKENS = { };
 
-	$par->{deltags} =~ s/\s*,+\s*/,/g;
-	$par->{deltags} =~ s/,\s*$//;
+# TODO: load access
+sub load_tokens {
+    my $file; # TODO
+    eval { $ACCESS_TOKENS = YAML::LoadFile($file) } if -f $file;
+    return unless $ACCESS_TOKENS;
 
-	foreach my $p ( keys %$par ) {
-		$par->{$p} =~ s/^\s+|\s+$//mg; # trim
-		next if $par->{$p} eq '';
-		my $reg = $PARAM{$p};
-		if ($par->{$p} !~ /^$reg$/) {
-			$badquery->{$p} = "invalid format";
-		}
-	}
+    # TODO: change ... to ...
+}
 
-	if ($par->{addfields}) {
-  	    my $pica = eval { PICA::Record->new( $par->{addfields} ) };
-	    if ($pica) {
-			$par->{addfields} = "$pica";
-	    } else { # TODO: not shown in UI?!
-			$badquery->{addfields} = "invalid format";
-		}
-	}
+# Returns a GBV::PICA::Edit created from request params and enriched
+# with `malformed` and `error` field.
+sub checked_edit {
+	my $edit = new_edit(
+		map { $_ => param($_) // '' } qw(record deltags addfields iln eln),
+        ip => (request->address // ''),
+	);
 
-	if (!$par->{record}) {
-		$par->{error} = "missing record ID";
-		$badquery->{record} = "missing";
-	} else {
-        if ($par->{record} !~ /^test/) {
-            my $pica = LWP::Simple::get("http://unapi.gbv.de/?id=".$par->{record}."&format=pp" );
-            $pica = eval { PICA::Record->new( $pica ); };
-            if (!$pica) {
-                $par->{error} = $badquery->{record} = "Datensatz nicht gefunden!";
-            }
-        }
-    }
+    return $edit if $edit->{error};
 
-	if (!$par->{error} and !$par->{addfields} and !$par->{deltags}) {
-		$par->{error} = "please provide some changes";
-    }
+    try {
+        validate_edit($edit);
+    } catch {
+        $edit->{error} = $_ // "invalid query";
+        $edit->{error} =~ s/ at .* line .*$//sm;
+        return $edit;
+    };
 
-	if (%$badquery) {
-		$par->{badquery} = $badquery;
-		$par->{error} //= "bad query";
-	}
-	$par;
+    # TODO: authentifizieren
+    #my $access;
+    #if ($access) {
+    #    if ($access->{iln} 
+    #}
+
+    return $edit;
 }
 
 sub get_status {
@@ -75,9 +66,13 @@ sub get_status {
     my $edits = database->quick_select("edits", { edit => $id }, { 
         order_by => 'timestamp', limit => 1 
     } );
-#debug($edits);
-    my $status = $edits ? $edits->[0]->{status} : 0;
-    return $status;
+    return (0,undef,'') unless $edits;
+
+    return ( $edits->{status}, $edits->{timestamp}, $edits->{message} );
+    
+#    use Data::Dumper;
+#print STDERR Dumper($edits);    
+#    my $status = $id;
 }
 
 sub get_changes {
@@ -87,7 +82,7 @@ sub get_changes {
 		my $pica = $edit->{addfields} or next;
 		$pica = PICA::Record->new($pica);
 		$edit->{addtags} = "$pica"; # TODO: get tags only
-        $edit->{status} = get_status( $edit->{edit} );
+        ($edit->{status}, $edit->{timestamp}, $edit->{message}) = get_status( $edit->{edit} );
 	}
 	return $changes;
 }
@@ -111,61 +106,26 @@ sub change_as_txt {
 }
 
 get '/' => sub {
-	my $pica = <<'PICA';
-204@/99 $xfoo
-PICA
-    template 'index', { add => $pica };
+    template 'index', { };
 };
 
-get '/changes' => sub {
+get qr{^/edit/?} => sub {
 	template 'changes', {
 		title 	=> 'Änderungen',
 		changes => get_changes,
 	};
 };
 
-get '/edits' => sub {
-	# TODO: list edits
-};
-
 get '/webapi' => sub {
-    template 'webapi', check_params;
+    template 'webapi', checked_edit;
 };
-
-sub submit_change {
-	my $vars = shift;
-	if ($vars->{record} and !$vars->{error}) {
-        $vars->{ip} = request->address;
-		database->quick_insert('changes', { 
-			map { $_ => $vars->{$_} } qw(record deltags addfields iln ip)
-		} );
-		$vars->{success} = "Änderung angenommen!";
-		my $edit = database->last_insert_id("","","","");
-		$vars->{edit} = $edit;
-	}
-	my @empty = grep { !$vars->{$_} } keys %$vars;
-	delete $vars->{$_} for @empty;
-}
-
-post '/webapi' => sub {
-	my $vars = check_params;
-
-	if (param('preview')) {
-		return (template 'webapi', $vars);
-	} else {
-		submit_change($vars);
-		template 'webapi', $vars;
-	}
-};
-
-
-## REST API ####################################################################
 
 sub get_edit {
+    my $id = shift // param('id');
     # TODO: weitere Anfrage-Parameter
-    my $edit = database->quick_select( 'changes', { edit => param('id') } );
-    if ($edit) {
-        $edit->{status} = get_status( $edit->{edit} );
+    my $edit = database->quick_select( 'changes', { edit => $id } );
+    if ($edit and $edit->{edit}) {
+        ($edit->{status},$edit->{timestamp},$edit->{message}) = get_status( $edit->{edit} );
         return $edit;
     } else {
         status(404); # not found
@@ -174,13 +134,17 @@ sub get_edit {
 }
 
 sub create_edit {
-    my $edit = check_params;
-    submit_change($edit);
+    my $edit = checked_edit;
+
+    store_edit($edit);
+
     if ($edit->{error}) {
         status(500); # $edit;
     } else {
         status(202); # accepted
+        # header( Location => "$baseurl/edit/".$edit->{edit} ); # TODO
     }
+
     return $edit;
 }
 
@@ -190,19 +154,52 @@ sub update_edit {
     return { "error" => "Service Unavailable" };
 };
 
-set serializer => 'JSON';
+sub store_edit {
+	my $vars = shift;
+	if ($vars->{record} and !$vars->{error}) {
+        try {
+    		database->quick_insert('changes', { 
+	    		map { $_ => $vars->{$_} } qw(record deltags addfields iln ip)
+		    } );
+    		$vars->{success} = "Änderung angenommen!";
+	    	my $id = database->last_insert_id("","","","");
+		    $vars->{edit} = $id;
+        } catch {
+            $vars->{error} = ($_ // "failed to insert into database");
+        }
+	}
+	my @empty = grep { !$vars->{$_} } keys %$vars;
+	delete $vars->{$_} for @empty;
+}
 
-get '/edit/:id.html' => sub {
-    my $edit = database->quick_select( 'changes', { edit => param('id') } );
-    my $vars = { edit => $edit };
-    if (!$edit) {
-        status(404);
-        $vars->{title} = "Bearbeitung nicht gefunden";
-    }
-    template 'edit' => $vars;
+post '/webapi' => sub {
+	my $edit = checked_edit;
+	if (param('preview')) {
+		template 'webapi', $edit;
+	} else {
+		store_edit($edit);
+		template 'webapi', $edit;
+	}
 };
 
-get '/edit' => \&get_edit;
+get qr{/edit/([^./]+)(\.html)?$} => sub {
+    my ($id) = splat;
+    my $edit = get_edit($id);
+    if (!$edit->{edit}) {
+        status(404);
+        $edit->{title} = "Änderung nicht gefunden";
+    }
+use Data::Dumper;
+print debug(Dumper($edit));
+        # TODO: check!
+
+    template 'edit' => $edit;
+};
+
+
+## REST API ####################################################################
+
+set serializer => 'JSON';
 
 resource 'edit' =>
     get    => \&get_edit,
@@ -211,13 +208,11 @@ resource 'edit' =>
         status(503);
         return { "error" => "Service Unavailable" };
     },
-    update => \&update_edit;
-
-################################################################################
+    update => \&update_edit; # TODO: auch über eine andere URL
 
 prepare_serializer_for_format;
 
-get "/changes.txt" => sub {
+get "/edit.txt" => sub {
 	my $changes = get_changes;
 	my $txt = <<'TXT';
 #
@@ -238,11 +233,24 @@ TXT
 	return $txt;
 };
 
-get "/changes.:format" => sub {
+get "/edit.:format" => sub {
 	{ changes => get_changes };
 };
 
-sub init_db {
+## Deprecated routes ###########################################################
+
+get "/changes" => sub { redirect '/edit' };
+get "/changes.txt" => sub { redirect '/edit.txt' };
+get "/changes.json" => sub { redirect '/edit.json' };
+get "/changes.xml" => sub { redirect '/edit.xml' };
+
+## Initialize database on startup ##############################################
+
+hook 'before' => sub {
+    our $database_initialized;
+    return if $database_initialized;
+    $database_initialized = 1;
+
 	my $sql = <<'SQL';
 create table if not exists "changes" (
     edit    INTEGER PRIMARY KEY,
@@ -264,14 +272,6 @@ create table if not exists "edits" (
 );
 SQL
 	database->do($sql);
-
-}
-
-my $db_init = 0;
-hook 'before' => sub {
-    return if $db_init;
-    $db_init = 1;
-    init_db;
 };
 
 true;

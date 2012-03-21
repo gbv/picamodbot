@@ -1,6 +1,6 @@
 <p>
   Über <a href="#api">eine HTTP-API</a> sammelt diese Webanwendung
-  <a href="[% base_uri %]/changes">Änderungswünsche</a> an PICA+ Datensätzen
+  <a href="[% base_uri %]/edit">Änderungswünsche</a> an PICA+ Datensätzen
   und gibt bekannt, ob die Änderungen durchgeführt wurden.
 </p>
 
@@ -56,7 +56,7 @@
 </p>
 <h3>Änderungswünsche einsehen</h3>
 <p>Die aktuell vorliegenden Änderungen können unter 
- <a href="[% base_uri %]/changes">[% base_uri %]/changes</a> 
+ <a href="[% base_uri %]/edit">[% base_uri %]/edit</a> 
  in verschiedenen Formaten (XML, JSON, TXT) abgerufen werden.
 </p>
 <h3>Änderungen vornehmen</h3>

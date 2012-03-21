@@ -8,8 +8,8 @@
     <th>iln</th>
     <th>delete</th>
     <th>add</th>
-    <th>status</th>
     <th></th>
+    <th>status</th>
    </tr>
   </thead>
   <tbody>
@@ -21,16 +21,23 @@
     <td>[% c.iln %]</td>
     <td>[% c.deltags|truncate(40) %]</td>
     <td>[% c.addtags|truncate(40) %]</td>
-    <td>[% c.status %]<!-- TODO: date --></td>
+    <td style="text-align:center">
+      <span class="badge 
+        [%- IF c.status == 1 %]badge-success" title="done">1
+        [%- ELSIF c.status == -1 %]badge-error" title="failed">-1
+        [%- ELSE %]" title="queued">0[% END %]</span>
+    </td>
+    <td><span title="[% c.message|html %]">[% c.timestamp %]</span></td>
    </tr>
 [% END %] 
   </tbody>
 </table>
+ <hr>
  <p>
    Diese Liste als:
-   <a href="[% uri_base %]/changes.xml" class="btn">XML</a>
-   <a href="[% uri_base %]/changes.json" class="btn">JSON</a>
-   <a href="[% uri_base %]/changes.txt" class="btn">TXT</a>
+   <a href="[% uri_base %]/edit.xml" class="btn">XML</a>
+   <a href="[% uri_base %]/edit.json" class="btn">JSON</a>
+   <a href="[% uri_base %]/edit.txt" class="btn">TXT</a>
  </p>
 [% ELSE %]
  <p>Es liegen keine Änderungen vor.</p>

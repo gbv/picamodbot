@@ -14,3 +14,5 @@ plugins:
         driver: 'SQLite'
         database: 'picamodbot.sqlite'
 
+# add access tokens in access_tokens.yml
+

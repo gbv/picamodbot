@@ -4,31 +4,31 @@ z.B. <code>gvk:ppn:12345678</code> referenziert werden.</p>
 <form action="[% request.base_uri %]/webapi" method="post">
 <div class="row">
  <div class="span4">
-   <fieldset class="control-group [% IF badquery.record %]error[% END %]">
+   <fieldset class="control-group [% IF malformed.record %]error[% END %]">
      <label for="record">Datensatz-ID</label>
      <input class="span4" id="record" name="record" value="[% record|html %]"/>
    </fieldset>
  </div>
  <div class="span1">
-   <fieldset class="control-group [% IF badquery.iln %]error[% END %]">
+   <fieldset class="control-group [% IF malformed.iln %]error[% END %]">
      <label for="iln">ILN</label>
      <input class="span1" id="iln" name="iln" value="[% iln|html %]"/>
    </fieldset>
  </div>
  <div class="span4">
-   <fieldset class="control-group [% IF badquery.deltags %]error[% END %]">
+   <fieldset class="control-group [% IF malformed.deltags %]error[% END %]">
      <label for="deltags">Folgende Felder (,-separierte Tags) löschen</label>
      <input class="span4" id="deltags" name="deltags" value="[% deltags|html %]"/>
    </fieldset>
  </div>
  <div class="span3">
   [% IF error %]
-      <label>&#xA0;</label>
-      <span class="badge badge-error">[% error|html %]</span>
+    <label>&#xA0;</label>
+    <span class="badge badge-error">[% error|html %]</span>
   [% END %]
  </div>
 </div>
-<fieldset class="control-group [% IF badquery.addfields %]error[% END %]">
+<fieldset class="control-group [% IF malformed.addfields %]error[% END %]">
   <label for="addfields">Folgende PICA+ Felder hinzufügen</label>
   <textarea id="addfields" name="addfields" rows="4">[% addfields|html %]</textarea>
 </fieldset>

@@ -14,6 +14,7 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Template'      => 0,
+        'Try::Tiny'     => 0,
         'LWP::Simple'   => 0,
         'Test::More'    => 0,
         'YAML'          => 0,
