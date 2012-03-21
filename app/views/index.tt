@@ -97,3 +97,12 @@
 	</tr>
    </tbody>
   </table>
+<p>
+Folgende Status sind möglich:
+<ul>
+<li><span class="badge">0</span> : die Änderung steht noch aus</li>
+<li><span class="badge badge-success">1</span> : die Änderung wurde erfolgreich durchgeführt</li>
+<li><span class="badge badge-info">2</span> : die Änderung wurde ignoriert, da sie keinen Unterschied macht</li>
+<li><span class="badge badge-error">-1</span> : die Änderung wurde verworfen</li>
+</ul>
+</p>

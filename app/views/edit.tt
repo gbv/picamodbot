@@ -34,6 +34,7 @@
 <!-- TODO: liste der Versuche -->
 [% IF status == -1 %]<span class="badge badge-error">nicht ausgeführt</span> 
 [% ELSIF status == 1 %]<span class="badge badge-success">ausgeführt</span> 
+[% ELSIF status == 2 %]<span class="badge badge-info">ignoriert</span> 
 [% ELSE %]<span class="badge">in Bearbeitung</span> 
 [% END %]
     <i>[% message|html %]</i>

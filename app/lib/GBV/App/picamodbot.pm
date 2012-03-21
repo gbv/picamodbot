@@ -14,15 +14,7 @@ use YAML;
 use GBV::PICA::Edit;
 use Try::Tiny;
 
-our $VERSION = '0.1';
-
-my %PARAM = (
-	record	  => qr{[a-z]([a-z0-9-]?[a-z0-9])*:ppn:\d+[0-9Xx]},
-	deltags   => qr{[01]\d\d[A-Z@](/\d\d)?(,[01]\d\d[A-Z@](/\d\d)?)*},
-	addfields => qr{.*},
-	iln 	  => qr{\d*},
-);
-
+## TODO
 my $ACCESS_TOKENS = { };
 
 # TODO: load access
@@ -68,20 +60,13 @@ sub get_status {
     } );
     return (0,undef,'') unless $edits;
 
-    return ( $edits->{status}, $edits->{timestamp}, $edits->{message} );
-    
-#    use Data::Dumper;
-#print STDERR Dumper($edits);    
-#    my $status = $id;
+    return ($edits->{status}, $edits->{timestamp}, $edits->{message});
 }
 
 sub get_changes {
 	my $changes = [ database->quick_select("changes", { }) ]; 
 	foreach my $i ( 0..(@$changes-1) ) {
         my $edit = $changes->[$i];
-		my $pica = $edit->{addfields} or next;
-		$pica = PICA::Record->new($pica);
-		$edit->{addtags} = "$pica"; # TODO: get tags only
         ($edit->{status}, $edit->{timestamp}, $edit->{message}) = get_status( $edit->{edit} );
 	}
 	return $changes;
@@ -104,21 +89,6 @@ sub change_as_txt {
 	}
 	return $txt;
 }
-
-get '/' => sub {
-    template 'index', { };
-};
-
-get qr{^/edit/?} => sub {
-	template 'changes', {
-		title 	=> 'Änderungen',
-		changes => get_changes,
-	};
-};
-
-get '/webapi' => sub {
-    template 'webapi', checked_edit;
-};
 
 sub get_edit {
     my $id = shift // param('id');
@@ -172,6 +142,20 @@ sub store_edit {
 	delete $vars->{$_} for @empty;
 }
 
+## HTML Interface ##############################################################
+
+get '/' => sub {
+    template 'index', { };
+};
+
+get qr{^/edit/?} => sub {
+	template 'edit-list', { changes => get_changes };
+};
+
+get '/webapi' => sub {
+    template 'webapi', checked_edit;
+};
+
 post '/webapi' => sub {
 	my $edit = checked_edit;
 	if (param('preview')) {
@@ -189,13 +173,35 @@ get qr{/edit/([^./]+)(\.html)?$} => sub {
         status(404);
         $edit->{title} = "Änderung nicht gefunden";
     }
-use Data::Dumper;
-print debug(Dumper($edit));
-        # TODO: check!
-
     template 'edit' => $edit;
 };
 
+any ['get','post'] => '/done' => sub {
+    my $status = 1*(param('status') || 0);
+    my $edit   = param('edit') // '';
+    my $message = param('message') // '';
+
+    my $vars = { status => $status, edit => $edit, message => $message };
+    if ( $vars->{status} !~ /^(-1|0|1|2)$/ ) {
+        $vars->{error} = "unknown status";
+    } elsif ( !$vars->{status} ) {
+        # ignore
+    } elsif ( $edit =~ /^\d+$/ ) {
+        my $e = get_edit($edit);
+        if ($e->{edit}) {
+            # INSERT INTO "edits" ("edit","status","message") VALUES (2,2,"warum?");
+            database->quick_insert('edits', $vars);
+            # TODO: on error?
+            redirect '/edit/'.$e->{edit};
+        } else {
+            $vars->{malformed} = { 'edit' => ($vars->{error} = "edit not found") };
+        }
+    } else {
+        $vars->{malformed} = { 'edit' => ($vars->{error} = "please provide edit ID") };
+    }
+
+    template 'done', $vars;
+};
 
 ## REST API ####################################################################
 

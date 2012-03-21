@@ -1,0 +1,36 @@
+<h2>Änderung als bearbeitet markieren</h2>
+<p>
+  Die API zum Markieren von <a href="[% uri_base %]/edit">Änderungen</a> ist nicht 
+  frei zugänglich. Über folgendes Formular können allerdings zum Testen Änderungen
+  markiert werden.
+</p>
+<form action="[% request.base_uri %]/done" method="post">
+<div class="row">
+ <div class="span2">
+   <fieldset class="control-group [% IF malformed.edit %]error[% END %]">
+     <label for="record">Änderungs-ID</label>
+     <input class="span2" id="edit" name="edit" value="[% edit|html %]"/>
+   </fieldset>
+ </div>
+ <div class="span4">
+   <fieldset class="control-group [% IF malformed.status %]error[% END %]">
+     <label for="message">Nachricht</label>
+     <input class="span4" id="message" name="message" value="[% message|html %]">
+   </fieldset>
+ </div>
+ <div class="span3">
+  [% IF error %]
+    <label>&#xA0;</label>
+    <span class="badge badge-error">[% error|html %]</span>
+  [% END %]
+ </div>
+</div>
+<div class="row">
+  <div class="span6">
+    <input name="status" type="submit" class="btn btn-success" value="1: Durchgeführt" />
+    <input name="status" type="submit" class="btn btn-info" value="2: Ignoriert" />
+    <input name="status" type="submit" class="btn btn-danger" value="-1: Abgelehnt" />
+    <a href="[% request.base_uri %]" class="btn">Abbrechen</a>
+  </div>
+</div>
+</form>

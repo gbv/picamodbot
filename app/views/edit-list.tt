@@ -15,17 +15,18 @@
   <tbody>
 [% FOREACH c IN changes %]
    <tr>
-    <td><a href="[% base_uri %]/edit/[% c.edit %].html">[% c.edit %]</a></td>
+    <td><a href="[% base_uri %]/edit/[% c.edit %]">[% c.edit %]</a></td>
 	<td>[% c.created %]</td>
     <td><a href="http://unapi.gbv.de/?id=[% c.record %]&format=picahtml">[% c.record %]</td>
     <td>[% c.iln %]</td>
     <td>[% c.deltags|truncate(40) %]</td>
-    <td>[% c.addtags|truncate(40) %]</td>
+    <td>[% c.addfields|truncate(40) %]</td>
     <td style="text-align:center">
-      <span class="badge 
+      <a href="[% base_uri %]/edit/[% c.edit %]"><span class="badge 
         [%- IF c.status == 1 %]badge-success" title="done">1
         [%- ELSIF c.status == -1 %]badge-error" title="failed">-1
-        [%- ELSE %]" title="queued">0[% END %]</span>
+        [%- ELSIF c.status == 2 %]badge-info" title="empty">2
+        [%- ELSE %]" title="queued">0[% END %]</span></a>
     </td>
     <td><span title="[% c.message|html %]">[% c.timestamp %]</span></td>
    </tr>

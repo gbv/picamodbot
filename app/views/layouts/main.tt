@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="[% uri_base %]/css/bootstrap.css">
   <link rel="stylesheet" href="[% uri_base %]/css/codemirror.css">
   <link rel="stylesheet" href="[% uri_base %]/css/picatextarea.css">
+  <link rel="stylesheet" href="[% uri_base %]/css/tablesorter.css" />
   <link rel="stylesheet" href="[% uri_base %]/css/style.css" />
 
   <script type="text/javascript" src="[% uri_base %]/js/jquery-1.7.1.min.js"></script> 
@@ -20,7 +21,15 @@
 <body>
 <div class="container">
 <div class="page-header" id="top">
-  <h1><a href="[% uri_base %]/">picamodbot</a>[% IF title %]: [% title %][% END %]</h1>
+  <h1>
+    [% IF request.path_info == uri_base _ '/' %]picamodbot[% ELSE %]<a href="[% uri_base %]/">picamodbot</a>[% END %]
+    [% match = request.path_info.match('^/([^/]+)(/(.+))?') %][% IF match %]
+      /
+      [% IF match.1 %]<a href="[% uri_base %]/[% match.0 %]">[% match.0 %]</a> / [% match.2 %]
+      [% ELSE %][% match.0 %][% END %]
+    [% END %]
+    [% IF title %]: [% title %][% END %]
+  </h1>
 </div>
 [% INCLUDE "messages.tt" %]
 [% content %]
