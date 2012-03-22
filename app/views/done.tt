@@ -1,10 +1,11 @@
-<h2>Änderung als bearbeitet markieren</h2>
+[% INCLUDE "admin-nav.tt" %]
+
 <p>
   Die API zum Markieren von <a href="[% uri_base %]/edit">Änderungen</a> ist nicht 
   frei zugänglich. Über folgendes Formular können allerdings zum Testen Änderungen
   markiert werden.
 </p>
-<form action="[% request.base_uri %]/done" method="post">
+<form action="[% request.base_uri %]/admin/done" method="post">
 <div class="row">
  <div class="span2">
    <fieldset class="control-group [% IF malformed.edit %]error[% END %]">
@@ -34,3 +35,50 @@
   </div>
 </div>
 </form>
+
+<h3>Änderungswünsche einsehen</h3>
+<p>Die aktuell vorliegenden Änderungen können unter 
+ <a href="[% base_uri %]/edit">[% base_uri %]/edit</a> 
+ in verschiedenen Formaten (XML, JSON, TXT) abgerufen werden.
+</p>
+<h3>Änderungen vornehmen</h3>
+<p>
+ Die API um Änderungen vorzunehmen, ist <i>nicht offen zugänglich</i>.
+ Mit entsprechender Berechtigung kann an 
+ <a href="[% base_uri %]/done">[% base_uri %]/done</a> eine
+ HTTP-Anfrage geschickt werden. Folgende Parameter werden unterstützt:
+</p>  
+  <table class="table table-striped">
+   <thead>
+    <tr>
+	 <th>Parameter</th>
+	 <th>Form</th>
+	 <th>Beschreibung</th>
+	</tr>
+   </thead>
+   <tbody>
+    <tr>
+	 <td><code>edit</code></td>
+	 <td>Identifier</td>
+	 <td>Änderungs-ID</td>
+	</tr>
+	<tr>
+	 <td><code>record</code></td>
+	 <td><code><b>{DBKEY}</b>:ppn:<b>{PPN}</b></code></td>
+	 <td>Auswahl des PICA+ Datensatz</td>
+	</tr>
+	<tr>
+	 <td><code>status</code></td>
+	 <td><code>done</code> oder <code>rejected</code></td>
+	 <td>Wurde die Änderung durchgeführt?</td>
+	</tr>
+   	<tr>
+	 <td><code>message</code></td>
+	 <td>optional</td>
+	 <td>z.B. Hinweis</td>
+	</tr>
+   </tbody>
+  </table>
+<p>
+
+

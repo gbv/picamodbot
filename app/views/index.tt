@@ -1,108 +1,43 @@
 <p>
-  Über <a href="#api">eine HTTP-API</a> sammelt diese Webanwendung
-  <a href="[% base_uri %]/edit">Änderungswünsche</a> an PICA+ Datensätzen
-  und gibt bekannt, ob die Änderungen durchgeführt wurden.
+    <span class="badge badge-inverse">picamodbot</span> ist ein Computerprogramm, das 
+    über <a href="[% base_uri %]/webapi">eine einfache HTTP-API</a> Änderungswünsche an
+    PICA+ Datensätzen entgegennimmt. Die Änderungswünsche werden
+    <a href="[% base_uri %]/edit">in einer Warteschlange</a> gespeichert.
+    Der aktuelle Bearbeitungsstand der Änderungen ist ebenfalls über die API abrufbar.
 </p>
-
-[% INCLUDE "webapi.tt" %]
-
-<h2 id="api">Die API</h2>
-<h3>Änderungen anmelden</h3>
+<h2>Voraussetzungen</h2>
 <p>
-  Die HTTP-API ist unter <a href="[% request.base_uri %]/edit">[% request.base_uri %]/edit</a>
-  per HTTP POST zugänglich. Folgende Parameter werden für POST unterstützt:
-  
-  <table class="table table-striped">
-   <thead>
-    <tr>
-	 <th>Parameter</th>
-	 <th>Form</th>
-	 <th>Beschreibung</th>
-	</tr>
-   </thead>
-   <tbody>
-    <tr>
-	 <td><code>record</code></td>
-	 <td><code><b>{DBKEY}</b>:ppn:<b>{PPN}</b></code></td>
-	 <td>
-	   Auswahl eines PICA+ Datensatz über eine Kombination aus 
-	   Datenbank (DBKEY) und PPN (PPN).
-	 </td>
-	</tr>
-    <tr>
-	 <td><code>deltags</code></td>
-     <td><code><b>{TAG}</b>(,<b>{TAG}</b>)*</code></td>
-	 <td>Liste von PICA+ Tags, deren Felder gelöscht werden sollen.</td>
-	</tr>
-    <tr>
-	 <td><code>add</code></td>
-     <td>PICA+ Format</td>
-	 <td>Fragment eines PICA+ Datensatz mit Feldern, die hinzugefügt werden sollen.
-	     Im einfachsten Fall besteht das Fragment aus einem einzelnen PICA+ Feld.
-		 Bislang werden nur Felder der Ebene 0 und der Ebene 2 unterstützt.
-	 </td>
-	</tr>
-    <tr>
-	 <td><code>iln</code></td>
-     <td>Zahl</td>
-	 <td>ILN der Einrichtung, für die die Änderung vorgenommen werden soll.
-	     Für PICA+ Felder der Ebene 2 ist diese Angabe notwendig, um die Felder
-		 der entsprechenden Einrichtung zuzuordnen.</td>
-	</tr>
-   </tbody>
-  </table>
-  Der Rückgabewert ist ein JSON-Objekt, das im Fehlerfall das Feld <code>error</code>
-  enthält. Im Erfolgsfall enthält die Antwort die (ggf. bereinigten) Anfrageparameter.
+    Die zu ändernden PICA+ Datensätze werden über ihre PPN in Verbindung mit einem 
+    Datenbankprefix identifiziert. Die PICA-Datenbank muss mit einem Prefix unter
+    <a href="http://unapi.gbv.de/about">http://unapi.gbv.de/</a> eingetragen sein.
 </p>
-<h3>Änderungswünsche einsehen</h3>
-<p>Die aktuell vorliegenden Änderungen können unter 
- <a href="[% base_uri %]/edit">[% base_uri %]/edit</a> 
- in verschiedenen Formaten (XML, JSON, TXT) abgerufen werden.
+<p>
+    Ein Änderungswunsch bestehen aus:
+    <ul>
+        <li>der qualifizierten Datensatz-ID</li>
+        <li>einer (ggf. leeren) Liste von PICA+ Feldern, die vollständig gelöscht werden sollen</li>
+        <li>einer (ggf. leeren) Liste von PICA+ Feldern, die hinzugefügt werden sollen</li>
+        <li>ggf. einer ILN zur Auswahl einer Bibliothek</li>
+        <li>ggf. einer EPN zur Auswahl eines Exemplars</li>
+    </ul>
+    Das Löschen oder Neuanlegen von Datensätzen ist bislang nicht möglich.
 </p>
-<h3>Änderungen vornehmen</h3>
+<h2>Bearbeitungsstatus</h2>
 <p>
- Die API um Änderungen vorzunehmen, ist <i>nicht offen zugänglich</i>.
- Mit entsprechender Berechtigung kann an 
- <a href="[% base_uri %]/done">[% base_uri %]/done</a> eine
- HTTP-Anfrage geschickt werden. Folgende Parameter werden unterstützt:
-</p>  
-  <table class="table table-striped">
-   <thead>
-    <tr>
-	 <th>Parameter</th>
-	 <th>Form</th>
-	 <th>Beschreibung</th>
-	</tr>
-   </thead>
-   <tbody>
-    <tr>
-	 <td><code>edit</code></td>
-	 <td>Identifier</td>
-	 <td>Änderungs-ID</td>
-	</tr>
-	<tr>
-	 <td><code>record</code></td>
-	 <td><code><b>{DBKEY}</b>:ppn:<b>{PPN}</b></code></td>
-	 <td>Auswahl des PICA+ Datensatz</td>
-	</tr>
-	<tr>
-	 <td><code>status</code></td>
-	 <td><code>done</code> oder <code>rejected</code></td>
-	 <td>Wurde die Änderung durchgeführt?</td>
-	</tr>
-   	<tr>
-	 <td><code>message</code></td>
-	 <td>optional</td>
-	 <td>z.B. Hinweis</td>
-	</tr>
-   </tbody>
-  </table>
+    Jeder Änderungswunsch wird mit einer ID versehen und kann unter
+    <code>[% base_uri %]/edit/<b>ID</b></code> eingesehen werden.
+    Der Status einer Änderung kann folgende Werte annehmen:
+    <ul class="unstyled" style="margin-left:1em">
+      <li><span class="badge">0</span> die Änderung steht noch aus</li>
+      <li><span class="badge badge-success">1</span> die Änderung wurde erfolgreich durchgeführt</li>
+      <li><span class="badge badge-info">2</span> die Änderung wurde ignoriert, da sie keinen Unterschied macht</li>
+      <li><span class="badge badge-error">-1</span> die Änderung wurde verworfen</li>
+    </ul>
+    Grundsätzlich geben positive Werte einen Erfolg und negative Werte einen Miserfolg an.
+</p>
+<h2>Teilnahme</h2>
 <p>
-Folgende Status sind möglich:
-<ul>
-<li><span class="badge">0</span> : die Änderung steht noch aus</li>
-<li><span class="badge badge-success">1</span> : die Änderung wurde erfolgreich durchgeführt</li>
-<li><span class="badge badge-info">2</span> : die Änderung wurde ignoriert, da sie keinen Unterschied macht</li>
-<li><span class="badge badge-error">-1</span> : die Änderung wurde verworfen</li>
-</ul>
+    Um Änderungen über <span class="badge badge-inverse">picamodbot</span> anzumelden, wird ein
+    <code>access_token</code> als Passwort benötigt. Jedes Token gilt nur für bestimmte Kombinationen
+    von Datenbanken und Feldern.
 </p>

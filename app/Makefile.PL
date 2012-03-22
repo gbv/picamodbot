@@ -25,6 +25,7 @@ WriteMakefile(
         'PICA::Record'              => 0,
         'Test::JSON::Entails'       => 0.1,
         # ...
+        'Crypt::OpenSSL::Random'    => 0.04,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'GBV-App-picamodbot-*' },

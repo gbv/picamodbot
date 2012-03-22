@@ -9,28 +9,19 @@ use PICA::Record;
 use Dancer::Plugin::Database;
 use Dancer::Plugin::REST;
 use LWP::Simple qw();
-use YAML;
+use JSON::Any;
 
-use GBV::PICA::Edit;
 use Try::Tiny;
 
-## TODO
-my $ACCESS_TOKENS = { };
+# local libraries
+use Edit;
+use Token;
 
-# TODO: load access
-sub load_tokens {
-    my $file; # TODO
-    eval { $ACCESS_TOKENS = YAML::LoadFile($file) } if -f $file;
-    return unless $ACCESS_TOKENS;
-
-    # TODO: change ... to ...
-}
-
-# Returns a GBV::PICA::Edit created from request params and enriched
+# Returns an edit created from request params and enriched
 # with `malformed` and `error` field.
 sub checked_edit {
 	my $edit = new_edit(
-		map { $_ => param($_) // '' } qw(record deltags addfields iln eln),
+		map { $_ => (param($_) // '') } qw(record deltags addfields iln eln),
         ip => (request->address // ''),
 	);
 
@@ -95,7 +86,16 @@ sub get_edit {
     # TODO: weitere Anfrage-Parameter
     my $edit = database->quick_select( 'changes', { edit => $id } );
     if ($edit and $edit->{edit}) {
-        ($edit->{status},$edit->{timestamp},$edit->{message}) = get_status( $edit->{edit} );
+        my $attempts = [ 
+            database->quick_select( 'edits', { edit => $id }, { order_by => { desc => 'timestamp' } } ) 
+        ]; # TODO order by
+        if ($attempts and @$attempts) {
+            delete $_->{edit} for @$attempts;
+            $edit->{attempts} = $attempts;
+            $edit->{$_} = $edit->{attempts}->[0]->{$_} for qw(status timestamp message);
+        } else {
+            $edit->{status} = 0;
+        }
         return $edit;
     } else {
         status(404); # not found
@@ -117,12 +117,6 @@ sub create_edit {
 
     return $edit;
 }
-
-sub update_edit {
-    # status(403); # Forbidden
-    status(503);
-    return { "error" => "Service Unavailable" };
-};
 
 sub store_edit {
 	my $vars = shift;
@@ -162,7 +156,7 @@ post '/webapi' => sub {
 		template 'webapi', $edit;
 	} else {
 		store_edit($edit);
-		template 'webapi', $edit;
+		redirect '/edit/'.$edit->{edit};
 	}
 };
 
@@ -172,49 +166,104 @@ get qr{/edit/([^./]+)(\.html)?$} => sub {
     if (!$edit->{edit}) {
         status(404);
         $edit->{title} = "Änderung nicht gefunden";
+    } else {
+        $edit->{json} = JSON::Any->new(pretty =>1)->encode( $edit );
     }
     template 'edit' => $edit;
 };
 
-any ['get','post'] => '/done' => sub {
-    my $status = 1*(param('status') || 0);
-    my $edit   = param('edit') // '';
+sub edit_done {
+    my $status  = 1*(param('status') || 0);
+    my $edit    = param('edit') // '';
     my $message = param('message') // '';
 
-    my $vars = { status => $status, edit => $edit, message => $message };
-    if ( $vars->{status} !~ /^(-1|0|1|2)$/ ) {
-        $vars->{error} = "unknown status";
-    } elsif ( !$vars->{status} ) {
+    my $error;
+    my @mal;
+
+    if ( $status !~ /^(-1|0|1|2)$/ ) {
+        $error = "unknown status";
+    } elsif ( !$status ) {
         # ignore
     } elsif ( $edit =~ /^\d+$/ ) {
         my $e = get_edit($edit);
         if ($e->{edit}) {
             # INSERT INTO "edits" ("edit","status","message") VALUES (2,2,"warum?");
-            database->quick_insert('edits', $vars);
+            database->quick_insert('edits', {
+                edit => $e->{edit} ,
+                status => $status,
+                message => $message,           
+            } );
             # TODO: on error?
-            redirect '/edit/'.$e->{edit};
+            redirect "/edit/$edit";
         } else {
-            $vars->{malformed} = { 'edit' => ($vars->{error} = "edit not found") };
+            @mal = ( 'edit' => ($error = "edit not found") );
         }
     } else {
-        $vars->{malformed} = { 'edit' => ($vars->{error} = "please provide edit ID") };
+        @mal = ( 'edit' => ($error = "please provide edit ID") );
     }
 
-    template 'done', $vars;
+    my $vars = { status => $status, edit => $edit, message => $message };
+    $vars->{error} = $error if $error;
+    $vars->{malformed} = \@mal;
+
+    return $vars;
+}
+
+any ['get','post'] => '/done' => sub {
+    my $vars = edit_done;
+    # TODO: HTTP status
+    return $vars;
 };
+
+any ['get','post'] => '/admin/done' => sub {
+    template 'done', edit_done;
+};
+
+get '/admin' => sub {
+    my $vars = { };
+    # TODO: weitere Statistiken
+    my $sql = 'SELECT iln, count(iln) AS "count", max(created) AS "latest" FROM changes GROUP BY iln ORDER BY count(iln) DESC';
+    my $ilnstat = database->selectall_arrayref( $sql, { Slice => {} } );
+    template 'admin', { ilnstat => $ilnstat };
+};
+
+any ['get','post'], '/admin/token' => sub {
+    my $tokens = [ ];
+
+    my $tk = new_token( map { $_ => param($_) } qw(dbkeys ilns tags) );
+    if (param('add_token') and !$tk->{malformed}) {
+        database->quick_insert('tokens', { 
+            token => $tk->{access_token}, map { $_ => $tk->{$_} } qw(ilns dbkeys tags)
+        } );
+        $tk->{success} = "Token hinzugefügt";
+        # TODO: Fehlerfall (z.B. token schon existent)
+    }
+
+    $tokens = [ database->quick_select('tokens',{}) ];
+
+    template 'token', { tokens => $tokens, %$tk };
+};
+
+any ['get','post'], '/admin/backup' => sub {
+    # TODO 
+    template 'backup';
+};
+
 
 ## REST API ####################################################################
 
 set serializer => 'JSON';
 
+get '/admin/token.json' => sub {
+    my $token = [ database->quick_select('tokens',{}) ];
+    { 'token' => $token };
+};
+
 resource 'edit' =>
     get    => \&get_edit,
     create => \&create_edit,
-    delete => sub {
-        status(503);
-        return { "error" => "Service Unavailable" };
-    },
-    update => \&update_edit; # TODO: auch über eine andere URL
+    delete => sub { status(503); { "error" => "Service Unavailable" }; },
+    update => sub { status(503); { "error" => "Service Unavailable" }; };
 
 prepare_serializer_for_format;
 
@@ -257,7 +306,7 @@ hook 'before' => sub {
     return if $database_initialized;
     $database_initialized = 1;
 
-	my $sql = <<'SQL';
+    my @sql = split '--', <<'SQL';
 create table if not exists "changes" (
     edit    INTEGER PRIMARY KEY,
 	record  NOT NULL,
@@ -267,17 +316,22 @@ create table if not exists "changes" (
     ip,
 	iln
 );
-SQL
-	database->do($sql);
-	$sql = <<'SQL';
+--
 create table if not exists "edits" (
     edit 	  INTEGER NOT NULL,
 	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 	status,
 	message
 );
+--
+create table if not exists "tokens" (
+    token PRIMARY KEY,
+    dbkeys,
+    ilns,
+    tags
+);
 SQL
-	database->do($sql);
+	database->do($_) for @sql;
 };
 
 true;

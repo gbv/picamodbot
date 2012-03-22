@@ -1,16 +1,15 @@
 [% IF edit %]
+<h1>Änderungswunsch</h1>
 <div>
 <table class="table">
-<thead>
-</thead>
 <tbody>
+  <tr>
+    <th style="text-align:right; border-top:none">Datensatz: </th>
+    <td style="border-top:none"<a href="http://unapi.gbv.de/?id=[% record %]&format=picahtml">[% record %]</td>
+  </tr>
   <tr>
     <th style="text-align:right">Eingereicht: </th>
     <td> [% created %]</td>
-  </tr>
-  <tr>
-    <th style="text-align:right">Datensatz: </th>
-    <td><a href="http://unapi.gbv.de/?id=[% record %]&format=picahtml">[% record %]</td>
   </tr>
   <tr>
     <th style="text-align:right">ILN: </th>
@@ -31,22 +30,30 @@
   <tr>
     <th style="text-align:right">Status:</th>
     <td>
-<!-- TODO: liste der Versuche -->
-[% IF status == -1 %]<span class="badge badge-error">nicht ausgeführt</span> 
-[% ELSIF status == 1 %]<span class="badge badge-success">ausgeführt</span> 
-[% ELSIF status == 2 %]<span class="badge badge-info">ignoriert</span> 
-[% ELSE %]<span class="badge">in Bearbeitung</span> 
-[% END %]
-    <i>[% message|html %]</i>
+    [% IF attempts %]
+      <ul class="unstyled">
+        [% FOREACH c IN attempts %]
+          <li>
+            <tt>[% c.timestamp %]</tt>
+            [% IF c.status == -1 %]<span class="badge badge-error">nicht ausgeführt</span> 
+            [% ELSIF c.status == 1 %]<span class="badge badge-success">ausgeführt</span> 
+            [% ELSIF c.status == 2 %]<span class="badge badge-info">ignoriert</span>[% END %]
+            <i>[% c.message|html %]</i>
+          </li>
+        [% END %]
+      </ul>
+    [% ELSE %]
+       <span class="badge">in Bearbeitung</span> 
+    [% END %]
   </tr>
 </tbody>
 </table> 
 </div>
 <hr>
  <p>
-   Diese Änderung als:
-   <a href="[% uri_base %]/edit/[% edit %].xml" class="btn">XML</a>
-   <a href="[% uri_base %]/edit/[% edit %].json" class="btn">JSON</a>
+   Diese Änderung 
+   <a href="[% uri_base %]/edit/[% edit %].json">in JSON</a>:
+   <pre>[% json %]</pre>
  </p>
 [% ELSE %]
 <p>

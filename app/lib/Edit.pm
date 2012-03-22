@@ -1,4 +1,4 @@
-package GBV::PICA::Edit;
+package Edit;
 #ABSTRACT: Modification at an identified PICA+ record
 
 use 5.010;
@@ -23,8 +23,8 @@ sub new_edit {
         $self->{$_} =~ s/^\s+|\s+$//g;
     }
 
-    $self->{deltags} = join ',', sort grep { $_ !~ /^\s*$/ }
-        split /\s*,\s*/, $self->{deltags};
+    $self->{deltags} = join (',', sort grep { $_ !~ /^\s*$/ }
+        split /\s*,\s*/, $self->{deltags});
 
     my $pica = $self->{addfields} eq '' ? undef : 
         eval { PICA::Record->new( $self->{addfields} ) };
@@ -53,7 +53,7 @@ sub malformed_edit {
     push @mal, 'epn' unless 
         $self->{epn} =~ /^\d*$/;
     push @mal, 'deltags' unless 
-        $self->{deltags} =~ qr{^([01]\d\d[A-Z@](/\d\d)?(,[01]\d\d[A-Z@](/\d\d)?)*)?$};
+        $self->{deltags} =~ qr{^([012]\d\d[A-Z@](/\d\d)?(,[012]\d\d[A-Z@](/\d\d)?)*)?$};
 
 	if ($self->{addfields}) {
 		push @mal, 'addfields' unless

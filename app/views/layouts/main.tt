@@ -20,28 +20,48 @@
 </head>
 <body>
 <div class="container">
-<div class="page-header" id="top">
-  <h1>
-    [% IF request.path_info == uri_base _ '/' %]picamodbot[% ELSE %]<a href="[% uri_base %]/">picamodbot</a>[% END %]
-    [% match = request.path_info.match('^/([^/]+)(/(.+))?') %][% IF match %]
-      /
-      [% IF match.1 %]<a href="[% uri_base %]/[% match.0 %]">[% match.0 %]</a> / [% match.2 %]
-      [% ELSE %][% match.0 %][% END %]
-    [% END %]
-    [% IF title %]: [% title %][% END %]
-  </h1>
+<!-- navbar -->
+<div class="navbar navbar-fixed-top">
+ <div class="navbar-inner">
+  <div class="container">
+    <a class="brand" href="[% uri_base %]">picamodbot</a>
+    <ul class="nav">
+      <li[% IF request.path_info.match('^/$') %] class="active"[% END %]>
+        <a href="[% base_uri %]/">Übersicht</a>
+      </li>
+      <li[% IF request.path_info.match('^/edit') %] class="active"[% END %]>
+        <a href="[% base_uri %]/edit">Änderungen</a>
+      </li>
+      <li[% IF request.path_info.match('^/webapi') %] class="active"[% END %]>
+        <a href="[% base_uri %]/webapi">API</a>
+      </li>
+      <li[% IF request.path_info.match('^/admin') %] class="active"[% END %]>
+        <a href="[% base_uri %]/admin">Admin</a>
+      </li>
+    </ul>
+  </div>
+ </div>
 </div>
+<!-- content -->
+<section>
+[% IF title %]<h1>[% title %]</h1>[% END %]
 [% INCLUDE "messages.tt" %]
 [% content %]
-  <footer>
-    Powered by <a href="http://perldancer.org/">Dancer</a> with
-    <a href="http://template-toolkit.org/">TemplateToolkit</a>,
-    <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>, 
-    <a href="http://gbv.github.com/picatextarea/">picatextarea</a>,
-    <a href="http://search.cpan.org/dist/PICA-Record/">PICA::Record</a>
-    and other Open Source components.
-  </footer>
-  [% dump %]
+</section>
+<!-- footer -->
+<footer>
+ <p> 
+  Powered by <a href="http://perldancer.org/">Dancer</a> with
+  <a href="http://template-toolkit.org/">TemplateToolkit</a>,
+  <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>, 
+  <a href="http://gbv.github.com/picatextarea/">picatextarea</a>,
+  <a href="http://search.cpan.org/dist/PICA-Record/">PICA::Record</a>
+  and other Open Source components.
+ </p>
+ <p>
+   Source code <a href="https://github.com/gbv/picamodbot">available at github</a>.
+ </p>
+</footer>
 </div>
 </body>
 <script>

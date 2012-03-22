@@ -1,0 +1,74 @@
+[% INCLUDE "admin-nav.tt" %]
+
+<div class="row">
+<form action="[% base_uri %]/admin/token" method="post">
+  <div class="span12">
+    <p>
+        Zum Eintragen von Änderungen muss ein <code>access_token</code> mitgeschickt werden. 
+        Derzeit müssen diese Tokens per Hand verwaltet werden. In Zukunft wird picamodbot ggf.
+        so erweitert, dass Tokens per OAuth-Protokoll erstellt werden können.
+    </p>
+    <h3>Access Tokens</h3>
+    <p>
+      Jedes Token kann für bestimmte Datenbanken, ILNs und/oder PICA-Tags festgelegt werden.
+      Die Angaben sind Komma-getrennte Listen und können einfache reguläre Ausdrücke enthalten.
+    </p>
+    <table class="table tablesorter">
+     <thead><tr>
+      <th>dbkeys</th>
+      <th>ILNs</th>
+      <th>tags</th>
+      <th>access_token</th>
+     </tr></thead>
+     <tbody>
+[% FOREACH t IN tokens %]
+<tr>
+  <td>[% t.dbkeys %]</td>
+  <td>[% t.ilns %]</td>
+  <td>[% t.tags %]</td>
+  <td style="text-align:center">
+    <code>[% t.token %]</code>
+    <div>
+      <a href="[% base_uri %]/admin/token?renew=[% t.token %]" class="btn btn-danger btn-mini">renew</a>
+      <a href="[% base_uri %]/admin/token?revoke=[% t.token %]" class="btn btn-danger btn-mini">delete</a>
+    </div>
+  </td>
+</tr>
+[% END %]
+     </tbody>
+     <tfoot>
+      <tr>
+        <td>
+          <fieldset class="control-group[% IF malformed.dbkeys %] error[% END %]"> 
+            <input type="text" class="" value="[% dbkeys|html %]" id="dbkeys" name="dbkeys" />
+            [% IF malformed.dbkeys %]            
+              <div class="help-block">[% malformed.dbkeys|html %]</div>
+            [% END %]
+          </fieldset>
+        </td>
+        <td>
+          <fieldset class="control-group[% IF malformed.ilns %] error[% END %]"> 
+            <input type="text" class="input-small" value="[% ilns|html %]" id="ilns" name="ilns" />
+            [% IF malformed.ilns %]
+              <div class="help-block">[% malformed.ilns|html %]</div>
+            [% END %]
+          </fieldset>
+        </td>
+        <td>
+          <fieldset class="control-group[% IF malformed.tags %] error[% END %]"> 
+            <input type="text" class="span4" value="[% tags|html %]" id="tags" name="tags" />
+            [% IF malformed.tags %]
+              <div class="help-block">[% malformed.tags|html %]</div>
+            [% END %]
+          </fieldset>
+        </td>
+        <td>
+            <input type="submit" name="add_token" class="btn" value="Hinzufügen"/>
+        </td>
+      </tr>
+     </tfoot>
+    </table>
+  </div>
+</form>
+</div>
+

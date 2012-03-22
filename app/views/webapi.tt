@@ -1,8 +1,63 @@
-<h2>Änderung anmelden</h2>
-<p>Der zu ändernde PICA+ Datensatz muss in qualifizierter Form,
-z.B. <code>gvk:ppn:12345678</code> referenziert werden.</p>
+<h1>Die API</h1>
+<p>
+    Neue Änderungswünsche können per HTTP POST an die URL
+    <a href="[% request.base_uri %]/edit">[% request.base_uri %]/edit</a> 
+    eingetragen werden. Der Rückgabewert ist ein JSON-Objekt, das im 
+    Fehlerfall das Feld <code>error</code> und im Erfolgsfall das Feld
+    <code>edit</code> mit der neu angelegten Änderungs-ID enthält.
+</p>
+
+<h2>Änderungen anmelden <small>per HTTP POST an [% request.base_uri %]/edit</small></h2>
+<p>
+  <table class="table table-striped">
+   <thead>
+    <tr>
+	 <th>Parameter</th>
+	 <th>Form</th>
+	 <th>Beschreibung</th>
+	</tr>
+   </thead>
+   <tbody>
+    <tr>
+	 <td><code>record</code></td>
+	 <td><code><b>{DBKEY}</b>:ppn:<b>{PPN}</b></code></td>
+	 <td>
+	   Auswahl eines PICA+ Datensatz über eine Kombination aus 
+	   Datenbank (DBKEY) und PPN (PPN).
+	 </td>
+	</tr>
+    <tr>
+	 <td><code>deltags</code></td>
+     <td><code><b>{TAG}</b>(,<b>{TAG}</b>)*</code></td>
+	 <td>Liste von PICA+ Tags, deren Felder gelöscht werden sollen.</td>
+	</tr>
+    <tr>
+	 <td><code>add</code></td>
+     <td>PICA+ Format</td>
+	 <td>Fragment eines PICA+ Datensatz mit Feldern, die hinzugefügt werden sollen.
+	     Im einfachsten Fall besteht das Fragment aus einem einzelnen PICA+ Feld.
+	 </td>
+	</tr>
+    <tr>
+	 <td><code>iln</code></td>
+     <td>Zahl</td>
+	 <td>ILN der Einrichtung, für die die Änderung vorgenommen werden soll.
+	     Für PICA+ Felder der Ebene 1 und 2 ist diese Angabe notwendig, um die
+         Felder der entsprechenden Einrichtung zuzuordnen.</td>
+	</tr>
+   </tbody>
+  </table>
+</p>
+
+<h2>Webformular <small>zum Testen und Eintragen per Hand</small></h2>
 <form action="[% request.base_uri %]/webapi" method="post">
 <div class="row">
+  <div class="span3">
+   <fieldset class="control-group [% IF malformed.record %]error[% END %]">
+     <label for="record">access_token</label>
+     <input id="access_token" name="access_token" value="[% access_token %]"/>
+   </fieldset>
+ </div>
  <div class="span4">
    <fieldset class="control-group [% IF malformed.record %]error[% END %]">
      <label for="record">Datensatz-ID</label>
@@ -15,10 +70,18 @@ z.B. <code>gvk:ppn:12345678</code> referenziert werden.</p>
      <input class="span1" id="iln" name="iln" value="[% iln|html %]"/>
    </fieldset>
  </div>
- <div class="span4">
+ <div class="span1">
+   <fieldset class="control-group [% IF malformed.eln %]error[% END %]">
+     <label for="eln">ELN</label>
+     <input class="input-small" id="eln" name="eln" value="[% eln|html %]"/>
+   </fieldset>
+ </div>
+</div>
+<div class="row">
+ <div class="span7">
    <fieldset class="control-group [% IF malformed.deltags %]error[% END %]">
      <label for="deltags">Folgende Felder (,-separierte Tags) löschen</label>
-     <input class="span4" id="deltags" name="deltags" value="[% deltags|html %]"/>
+     <input class="span6" id="deltags" name="deltags" value="[% deltags|html %]"/>
    </fieldset>
  </div>
  <div class="span3">
@@ -48,8 +111,6 @@ var picaedit = CodeMirror.fromTextArea( myTextarea, {
   autoClearEmptyLines: true
 });
 </script>
-
-
 
 
 
