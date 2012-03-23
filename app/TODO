@@ -1,3 +1,10 @@
-- backup und dump-restore
-- Authentifizierung für admin (siehe z.B. http://advent.perldancer.org/2010/22)
+- Bessere Hinweise zum Backup
+- Token-Verwaltung (löschen, erneuern, ändern...)
+- Token als notwendig aktivieren
+- Access-Token o.Ä. für admin (sicherer, da unter den IPs auch proxies sein könnten)?
+- Testfälle für Server-Komponente
+- Erledigte Bearbeitungen in eigene Tabelle?
+- Anzeige mit Seiten wenn sie sonst zu lang wird
+- Änderungen als RSS/ATOM-Feed
+- Änderungen filtern nach ILN etc.
 - set 'sqlite_allow_multiple_statements' for SQLite multiple statements in do()
