@@ -69,7 +69,7 @@
 	</tr>
 	<tr>
 	 <td><code>status</code></td>
-	 <td><code>done</code> oder <code>rejected</code></td>
+	 <td><code>1</code>, <code>-1</code>, <code>2</code></td>
 	 <td>Wurde die Änderung durchgeführt?</td>
 	</tr>
    	<tr>

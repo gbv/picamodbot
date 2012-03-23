@@ -1,0 +1,7 @@
+# This configuration file is used is deployed at dotCloud
+
+plugins:
+    Database:
+        driver: 'SQLite'
+        database: '/home/dotcloud/data/picamodbot.sqlite'
+
