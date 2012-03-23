@@ -1,7 +1,11 @@
-# This configuration file is used is deployed at dotCloud
+# Additional configuration for test deployment at dotCloud
 
 plugins:
     Database:
         driver: 'SQLite'
+        # only the ~/data directory is persistent
         database: '/home/dotcloud/data/picamodbot.sqlite'
 
+admin:
+    ips: 
+        - all

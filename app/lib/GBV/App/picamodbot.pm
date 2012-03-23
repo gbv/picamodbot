@@ -136,10 +136,46 @@ sub store_edit {
 	delete $vars->{$_} for @empty;
 }
 
+use Net::IP::AddrRanges;
+my $admin_ips;
+
+# check whether user is admin
+sub is_admin {
+    my $c = config->{admin} or return;
+
+    # See also Plack::Middleware::IPAddressFilter
+    if (!$admin_ips) {
+        $admin_ips = Net::IP::AddrRanges->new;
+        my @ips = ref $c->{ips} ? @{$c->{ips}} : ($c->{ips});
+        foreach (@ips) {
+            $admin_ips->add( $_ eq 'all' ? '255/0' : $_ )
+        }
+    }
+
+    return 0 unless $admin_ips->find( request->address );
+
+    return 1;
+}
+
 ## HTML Interface ##############################################################
+
+hook 'before_template_render' => sub {
+    my $vars = shift;
+    $vars->{environment} = config->{environment};
+    $vars->{is_admin}    = is_admin;
+};
 
 get '/' => sub {
     template 'index', { };
+};
+
+hook 'before' => sub {
+    debug(request->path);
+    if (request->path =~ qr{^/(done|admin)} and !is_admin) {
+        status '401';
+        header 'Content-Type' => 'application/json';
+        halt '{ "error" : "Access denied" }';
+    }
 };
 
 get qr{^/edit/?} => sub {
@@ -209,6 +245,8 @@ sub edit_done {
     return $vars;
 }
 
+## admin methods: TODO: auth
+
 any ['get','post'] => '/done' => sub {
     my $vars = edit_done;
     # TODO: HTTP status
@@ -248,7 +286,6 @@ any ['get','post'], '/admin/backup' => sub {
     # TODO 
     template 'backup';
 };
-
 
 ## REST API ####################################################################
 
@@ -306,7 +343,7 @@ hook 'before' => sub {
     return if $database_initialized;
     $database_initialized = 1;
 
-    my @sql = split '--', <<'SQL';
+    database->do($_) for split '--', <<'SQL';
 create table if not exists "changes" (
     edit    INTEGER PRIMARY KEY,
 	record  NOT NULL,
@@ -331,7 +368,6 @@ create table if not exists "tokens" (
     tags
 );
 SQL
-	database->do($_) for @sql;
 };
 
 true;

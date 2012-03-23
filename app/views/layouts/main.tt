@@ -35,9 +35,16 @@
       <li[% IF request.path_info.match('^/webapi') %] class="active"[% END %]>
         <a href="[% base_uri %]/webapi">API</a>
       </li>
-      <li[% IF request.path_info.match('^/admin') %] class="active"[% END %]>
-        <a href="[% base_uri %]/admin">Admin</a>
-      </li>
+      [% IF is_admin %]
+        <li[% IF request.path_info.match('^/admin') %] class="active"[% END %]>
+          <a href="[% base_uri %]/admin">Admin</a>
+        </li>
+      [% END %]
+    </ul>
+    <ul class="nav pull-right">
+      <li><span style="padding: 10px 10px 11px;  line-height: 19px;" class="badge [% 
+        IF environment=='development' %]badge-error[% ELSIF environment=='deployment' 
+        %]bade-warning[% END %]">[% environment %]</span></li>
     </ul>
   </div>
  </div>

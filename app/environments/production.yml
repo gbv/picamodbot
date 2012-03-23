@@ -1,0 +1,7 @@
+# Additional configuration for production
+
+admin:
+    # Nur innerhalb der VZG zugänglich
+    ips:
+        - 195.37.139/255
+        - 193.174.240/255 

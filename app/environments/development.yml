@@ -1,0 +1,6 @@
+# Additional configuration for development
+
+admin:
+    ips: 
+        - 127.0.0.1
+
