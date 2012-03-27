@@ -1,4 +1,5 @@
 package GBV::App::picamodbot;
+#ABSTRACT: Hauptmodul der Webkomponente von picamodbot 
 
 use 5.010;
 use strict;
@@ -342,6 +343,9 @@ hook 'before' => sub {
     our $database_initialized;
     return if $database_initialized;
     $database_initialized = 1;
+
+    debug 'Initializing database';
+    debug 'Environment is: ' . config->{environment};
 
     database->do($_) for split '--', <<'SQL';
 create table if not exists "changes" (

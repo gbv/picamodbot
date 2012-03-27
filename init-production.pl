@@ -52,6 +52,7 @@ cd
 [ -d $GIT_WORK_TREE ] && echo "work tree $GIT_WORK_TREE already exists!" && exit 1
 
 # reuse existing working tree for faster updates
+# TODO: build from scratch if somehow required to do so!
 if [ -d current ]; then
     rsync -a current/ $GIT_WORK_TREE
 else
@@ -98,6 +99,8 @@ PIDFILE=~/starman.pid
 
 # TODO: read from config file
 PORT=6024
+
+# TODO: force new startup if required to do so
 
 if [ -f $PIDFILE ]; then
     PID=`cat $PIDFILE`
