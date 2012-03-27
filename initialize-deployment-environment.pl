@@ -24,6 +24,8 @@ while (my ($file, $content) = each %scripts) {
     chmod 0755, $file;
 }
 
+system("ln -s current/app/logs/ logs") unless -e "logs";
+
 __DATA__
 repository/hooks/update
 -----------------------
@@ -65,6 +67,8 @@ carton install
 perl Makefile.PL
 carton exec -Ilib -- make test
 
+export DANCER_ENVIRONMENT=production
+# carton exec -Ilib -- starman -e -E production --port $PORT -D --pid $PIDFILE
 # TODO: test running with starman on testing port
 
 echo "[UPDATE] new -> $GIT_WORK_TREE/app"
@@ -78,10 +82,16 @@ echo "[UPDATE] revision $GIT_WORK_TREE installed at ~/new"
 repository/hooks/post-receive
 -----------------------------
 #!/bin/bash
+set -e
 
 cd
 echo "[POST-RECEIVE] new => current"
-mv new current
+if [ -d "new" ]; then
+    mv new current
+else
+    echo "[POST-RECEIVE] missing directory 'new'"
+    exit 1
+fi
 
 PIDFILE=~/starman.pid
 
@@ -90,10 +100,13 @@ PORT=6024
 
 if [ -f $PIDFILE ]; then
     PID=`cat $PIDFILE`
-    echo "[POST-RECEIVE] Gracefully restarting starman web server (pid $PID)"
+    echo "[POST-RECEIVE] Gracefully restarting starman web server on port $PORT (pid $PID)"
     kill -HUP $PID
 else
     cd current/app
     echo "[POST_RECEIVE] Starting starman as deamon on port $PORT (pid in $PIDFILE)"
-    carton exec -Ilib -- starman --port $PORT -D --pid $PIDFILE
+    export DANCER_ENVIRONMENT=production
+    carton exec -Ilib -- starman -e -E production --port $PORT -D --pid $PIDFILE
+
+    # TODO: cleanup old revisions
 fi
