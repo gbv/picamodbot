@@ -21,14 +21,14 @@ WriteMakefile(
         'YAML'          => 0,
         'Dancer'        => 1.3091,
         'Plack::Runner' => 0,
-        'Dancer::Plugin::Database'  => 1.80,
-        'Dancer::Plugin::REST'      => 0,
-        'PICA::Record'              => 0,
-        'Test::JSON::Entails'       => 0.1,
+        'Dancer::Plugin::Database' => 1.80,
+        'Dancer::Plugin::REST'     => 0,
+        'PICA::Record'             => 0,
+        'Test::JSON::Entails'      => 0.1,
         # ...
-        'Crypt::OpenSSL::Random'    => 0.04,
+        'Crypt::OpenSSL::Random'   => 0.04,
 
-        'Starman' => 0, # required to deploy with starman
+        'Plack::Handler::Starman'  => 0, # required to deploy with starman
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'GBV-App-picamodbot-*' },
