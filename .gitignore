@@ -1,3 +1,6 @@
 .carton/
 local/
+logs/
 *.swp
+
+MYMETA.*

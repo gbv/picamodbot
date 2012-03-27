@@ -1,0 +1,15 @@
+# Copy this file to /etc/apache2/sites-enabled/
+<VirtualHost *:80>
+    ServerName picamodbot.gbv.de
+    ServerSignature Off
+    ProxyRequests Off
+    <Proxy *>
+            Order Allow,Deny
+            Allow from all
+    </Proxy>
+    ProxyPass / http://localhost:6024/
+    ProxyPassReverse / http://localhost:6024/
+    ProxyVia On
+</VirtualHost>
+
+
