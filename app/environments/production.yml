@@ -6,3 +6,8 @@ admin:
         - 195.37.139/255
         - 193.174.240/255 
 
+plugins:
+    Database:
+        driver: 'SQLite'
+        database: '~/data/picamodbot.sqlite'
+

@@ -68,7 +68,7 @@ carton install
 perl Makefile.PL
 carton exec -Ilib -- make test
 
-export DANCER_ENVIRONMENT=production
+export PLACK_ENV=production
 # carton exec -Ilib -- starman -e -E production --port $PORT -D --pid $PIDFILE
 # TODO: test running with starman on testing port
 
@@ -106,7 +106,7 @@ if [ -f $PIDFILE ]; then
 else
     cd current/app
     echo "[POST_RECEIVE] Starting starman as deamon on port $PORT (pid in $PIDFILE)"
-    export DANCER_ENVIRONMENT=production
+    export PLACK_ENV=production
     carton exec -Ilib -- starman --environment production --error-logs logs/starman.log --port $PORT -D --pid $PIDFILE
 
     # TODO: cleanup old revisions
