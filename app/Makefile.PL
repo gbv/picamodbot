@@ -27,6 +27,8 @@ WriteMakefile(
         'Test::JSON::Entails'       => 0.1,
         # ...
         'Crypt::OpenSSL::Random'    => 0.04,
+
+        'Starman' => 0, # required to deploy with starman
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'GBV-App-picamodbot-*' },
