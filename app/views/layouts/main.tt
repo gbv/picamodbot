@@ -42,9 +42,10 @@
       [% END %]
     </ul>
     <ul class="nav pull-right">
+      [% env = settings.environment %]
       <li><span style="padding: 10px 10px 11px;  line-height: 19px;" class="badge [% 
-        IF environment=='development' %]badge-error[% ELSIF environment=='deployment' 
-        %]bade-warning[% END %]">[% environment %]</span></li>
+        IF env=='development' %]badge-error[% ELSIF env=='deployment' 
+        %]bade-warning[% END %]">[% env %]</span></li>
     </ul>
   </div>
  </div>

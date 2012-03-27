@@ -26,9 +26,15 @@ This application is used to collect change requests in PICA+ records.
      sudo cpanm LWP::Protocol::https
 
 
-# Installation at dotCloud
+# Installation at several PaaS cloud providers
+
+## Installation at dotCloud
 
 ...
+
+## Installation at OpenShift
+
+See L<https://openshift.redhat.com/app/> (not tested yet)
 
 
 # Installation at a production server

@@ -9,5 +9,5 @@ admin:
 plugins:
     Database:
         driver: 'SQLite'
-        database: '~/data/picamodbot.sqlite'
+        database: '/home/picamodbot/data/picamodbot.sqlite'
 

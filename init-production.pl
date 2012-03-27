@@ -68,9 +68,9 @@ cd app
 carton install
 perl Makefile.PL
 carton exec -Ilib -- make test
+carton exec -Ilib -- make clean
 
 export PLACK_ENV=production
-# carton exec -Ilib -- starman -e -E production --port $PORT -D --pid $PIDFILE
 # TODO: test running with starman on testing port
 
 echo "[UPDATE] new -> $GIT_WORK_TREE/app"
@@ -89,6 +89,7 @@ set -e
 cd
 echo "[POST-RECEIVE] new => current"
 if [ -d "new" ]; then
+    rm current
     mv new current
 else
     echo "[POST-RECEIVE] missing directory 'new'"
@@ -110,7 +111,7 @@ else
     cd current/app
     echo "[POST_RECEIVE] Starting starman as deamon on port $PORT (pid in $PIDFILE)"
     export PLACK_ENV=production
-    carton exec -Ilib -- starman --environment production --error-logs logs/starman.log --port $PORT -D --pid $PIDFILE
+    carton exec -Ilib -- starman --port $PORT -D --pid $PIDFILE
 
     # TODO: cleanup old revisions
 fi

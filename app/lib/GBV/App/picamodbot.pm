@@ -162,7 +162,7 @@ sub is_admin {
 
 hook 'before_template_render' => sub {
     my $vars = shift;
-    $vars->{environment} = config->{environment};
+    # $vars->{environment} = config->{environment};
     $vars->{is_admin}    = is_admin;
 };
 
