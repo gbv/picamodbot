@@ -18,12 +18,38 @@ use Try::Tiny;
 use Edit;
 use Token;
 
+use Net::IP::AddrRanges;
+my $admin_ips;
+
+sub address {
+    my $address = config->{behind_proxy} ? 
+        ( request->forwarded_for_address || request->env->{HTTP_X_FORWARDED_FOR} )
+    : 0;
+    return $address || request->address;
+}
+
+# check whether user is admin
+sub is_admin {
+    my $c = config->{admin} or return;
+
+    # See also Plack::Middleware::IPAddressFilter
+    if (!$admin_ips) {
+        $admin_ips = Net::IP::AddrRanges->new;
+        my @ips = ref $c->{ips} ? @{$c->{ips}} : ($c->{ips});
+        foreach (@ips) {
+            $admin_ips->add( $_ eq 'all' ? '255/0' : $_ )
+        }
+    }
+
+    return $admin_ips->find( address || '127.0.0.1' );
+}
+
 # Returns an edit created from request params and enriched
 # with `malformed` and `error` field.
 sub checked_edit {
 	my $edit = new_edit(
 		map { $_ => (param($_) // '') } qw(record deltags addfields iln eln),
-        ip => (request->address // ''),
+        ip => address,
 	);
 
     return $edit if $edit->{error};
@@ -137,31 +163,14 @@ sub store_edit {
 	delete $vars->{$_} for @empty;
 }
 
-use Net::IP::AddrRanges;
-my $admin_ips;
-
-# check whether user is admin
-sub is_admin {
-    my $c = config->{admin} or return;
-
-    # See also Plack::Middleware::IPAddressFilter
-    if (!$admin_ips) {
-        $admin_ips = Net::IP::AddrRanges->new;
-        my @ips = ref $c->{ips} ? @{$c->{ips}} : ($c->{ips});
-        foreach (@ips) {
-            $admin_ips->add( $_ eq 'all' ? '255/0' : $_ )
-        }
-    }
-
-    return $admin_ips->find( request->address || '255.255.255.255' );
-}
-
 ## HTML Interface ##############################################################
 
 hook 'before_template_render' => sub {
     my $vars = shift;
     # $vars->{environment} = config->{environment};
-    $vars->{is_admin}    = is_admin;
+
+    $vars->{is_admin} = is_admin;
+    $vars->{address}  = address;
 };
 
 get '/' => sub {
@@ -371,5 +380,9 @@ create table if not exists "tokens" (
 );
 SQL
 };
+
+if (config->{behind_proxy}) {
+    set behind_proxy => 1;
+}
 
 true;

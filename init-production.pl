@@ -98,20 +98,28 @@ fi
 
 PIDFILE=~/starman.pid
 
-# TODO: read from config file
-PORT=6024
-
-# TODO: force new startup if required to do so
-
 if [ -f $PIDFILE ]; then
     PID=`cat $PIDFILE`
     echo "[POST-RECEIVE] Gracefully restarting starman web server on port $PORT (pid $PID)"
     kill -HUP $PID
 else
-    cd current/app
-    echo "[POST_RECEIVE] Starting starman as deamon on port $PORT (pid in $PIDFILE)"
-    export PLACK_ENV=production
-    carton exec -Ilib -- starman --port $PORT -D --pid $PIDFILE
-
+    ~/restart
     # TODO: cleanup old revisions
 fi
+-------
+restart
+-------
+PIDFILE=~/starman.pid
+PORT=6024 # TODO: read from config file
+
+if [ -f $PIDFILE ]; then
+    echo "[restart] killing old process"
+    cat $PIDFILE | xargs kill
+fi
+
+cd current/app
+echo "[POST_RECEIVE] Starting starman as deamon on port $PORT (pid in $PIDFILE)"
+export PLACK_ENV=production
+carton exec -Ilib -- starman --port $PORT -D --pid $PIDFILE
+
+

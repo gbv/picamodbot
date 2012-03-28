@@ -4,4 +4,5 @@ logs/
 *.swp
 
 MYMETA.*
+Makefile
 Makefile.old

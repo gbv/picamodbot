@@ -11,3 +11,4 @@ plugins:
         driver: 'SQLite'
         database: '/home/picamodbot/data/picamodbot.sqlite'
 
+behind_proxy: true

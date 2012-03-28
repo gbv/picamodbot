@@ -1,8 +1,14 @@
 <h1>About</h1>
 <p>
   <dl>
-    <dt>environment</dt><dd>[% settings.environment %]</dd>
-    <dt>current request from</dt><dd>[% request.address %]</dd>
-    <dt>request base</dt><dd>[% request.base %]</dd>
+    [% proxy = settings.behind_proxy %]
+    <dt>environment</dt>
+        <dd>[% settings.environment %]</dd>
+    <dt>current request from</dt>
+        <dd>[% address %]</dd>
+    <dt>request base</dt>
+        <dd>[% request.base %][% IF proxy; THEN %] (behind proxy)[% END %]</dd>
+    <dt>database</dt>
+        <dd>[% settings.plugins.Database.database %] ([% settings.plugins.Database.driver %])</dd>
   </dl>
 </p>
