@@ -1,0 +1,8 @@
+<h1>About</h1>
+<p>
+  <dl>
+    <dt>environment</dt><dd>[% settings.environment %]</dd>
+    <dt>current request from</dt><dd>[% request.address %]</dd>
+    <dt>request base</dt><dd>[% request.base %]</dd>
+  </dl>
+</p>

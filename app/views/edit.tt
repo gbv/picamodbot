@@ -1,15 +1,25 @@
 [% IF edit %]
-<h1>Änderungswunsch</h1>
+<div class="alert
+  [%- IF attempts AND attempts.0.status == 1 %] alert-success">Die Änderung wurde durchgeführt
+  [%- ELSIF attempts AND attempts.0.status == 2 %] alert-info">Die Änderung wurde ignoriert (kein Unterschied)
+  [%- ELSIF attempts AND attempts.0.status > 0 %] alert-info">Die Änderung ist erledigt
+  [%- ELSIF attempts AND attempts.0.status < 0 %]">Die Änderung wurde abgelehnt
+  [% ELSE %] alert-nope">Die Änderung steht noch aus[% END %]
+</div>
 <div>
-<table class="table">
+<table class="table" style="width:auto">
 <tbody>
   <tr>
-    <th style="text-align:right; border-top:none">Datensatz: </th>
-    <td style="border-top:none"<a href="http://unapi.gbv.de/?id=[% record %]&format=picahtml">[% record %]</td>
+    <th style="text-align:right; border-top:none">Änderungs-ID: </th>
+    <td style="border-top:none">[% edit %]</td>
+  </tr>
+  <tr>
+    <th style="text-align:right;"> Datensatz: </th>
+    <td><a href="http://unapi.gbv.de/?id=[% record %]&format=picahtml">[% record %]</td>
   </tr>
   <tr>
     <th style="text-align:right">Eingereicht: </th>
-    <td> [% created %]</td>
+    <td><tt>[% created %]</tt></td>
   </tr>
   <tr>
     <th style="text-align:right">ILN: </th>
@@ -18,7 +28,7 @@
 [% IF deltags %]
   <tr>
     <th style="text-align:right">Tags entfernen: </td>
-     <td>[% deltags|html %]</td>
+     <td><span class="pica-tag">[% deltags.split(',').join('</span>, <span class="pica-tag">') %]</span></td>
   </tr>
 [% END %]
 [% IF addfields %]
@@ -35,8 +45,8 @@
         [% FOREACH c IN attempts %]
           <li>
             <tt>[% c.timestamp %]</tt>
-            [% IF c.status == -1 %]<span class="badge badge-error">nicht ausgeführt</span> 
-            [% ELSIF c.status == 1 %]<span class="badge badge-success">ausgeführt</span> 
+            [% IF c.status == -1 %]<span class="badge badge-error">nicht durchgeführt</span> 
+            [% ELSIF c.status == 1 %]<span class="badge badge-success">durchgeführt</span> 
             [% ELSIF c.status == 2 %]<span class="badge badge-info">ignoriert</span>[% END %]
             <i>[% c.message|html %]</i>
           </li>
@@ -49,6 +59,16 @@
 </tbody>
 </table> 
 </div>
+<ul class="pager">
+  [% IF edit > 1 %]
+    <li class="previous">
+      <a href="[% base_uri %]/edit/[% edit - 1 %]">&larr; </a>
+    </li>
+  [% END %]
+  <li class="next">
+      <a href="[% base_uri %]/edit/[% edit + 1 %]">&rarr;</a>
+  </li>
+</ul>
 <hr>
  <p>
    Diese Änderung 

@@ -1,25 +1,11 @@
 [% INCLUDE "admin-nav.tt" %]
 
-<div class="row">
-  <div class="span4">
-  <h3>Statistik der Änderungen</h3>
-[% IF ilnstat %]
-    <table class="table tablesorter">
-     <thead><tr>
-      <th>ILN</th>
-      <th>edits</th>
-      <th>latest</th>
-     </tr></thead>
-     <tbody>
-    [% FOREACH s IN ilnstat %]
-      <tr>
-        <td style="text-align:right">[% s.iln %]</td>
-        <td style="text-align:right">[% s.count %]</td>
-        <td>[% s.latest %]</td>
-      </tr>
-    [% END %]
-     </tbody>
-    </table>
-  </div>
-[% END %]
-</div>
+<p>
+  Die hier aufgeführten Administrations-Funktionen sind nur von bestimmten IPs aus erreichbar:
+  <ul>
+    <li><a href="[% uri_base %]/admin/done">Änderungen als erledigt markieren</a></li>
+    <li><a href="[% uri_base %]/admin/token">Zugriffstoken auf die API verwalten</a></li>
+    <li><a href="[% uri_base %]/admin/stats">Statistik einsehen</a></li>
+  </ul>
+</p>
+

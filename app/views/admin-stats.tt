@@ -1,0 +1,25 @@
+[% INCLUDE "admin-nav.tt" %]
+
+<div class="row">
+  <div class="span4">
+  <h3>Statistik der Änderungen</h3>
+[% IF ilnstat %]
+    <table class="table tablesorter">
+     <thead><tr>
+      <th>ILN</th>
+      <th>edits</th>
+      <th>latest</th>
+     </tr></thead>
+     <tbody>
+    [% FOREACH s IN ilnstat %]
+      <tr>
+        <td style="text-align:right">[% s.iln %]</td>
+        <td style="text-align:right">[% s.count %]</td>
+        <td>[% s.latest %]</td>
+      </tr>
+    [% END %]
+     </tbody>
+    </table>
+  </div>
+[% END %]
+</div>

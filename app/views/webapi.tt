@@ -1,10 +1,19 @@
 <h1>Die API</h1>
 <p>
     Neue Änderungswünsche können per HTTP POST an die URL
-    <a href="[% request.base_uri %]/edit">[% request.base_uri %]/edit</a> 
+    <a href="[% request.base %]edit">[% request.base %]edit</a>
     eingetragen werden. Der Rückgabewert ist ein JSON-Objekt, das im 
     Fehlerfall das Feld <code>error</code> und im Erfolgsfall das Feld
     <code>edit</code> mit der neu angelegten Änderungs-ID enthält.
+</p>
+
+<h2>Änderungen einsehen</h2>
+<p>
+    Eine Liste ausstehender <a href="[% base_uri %]/edit">Änderungen</a> ist unter
+    <a href="[% base_uri %]/edit.json">[% request.base %]edit.json</a> im 
+    JSON-Format abrufbar. Einzelne Änderungen können mit ihrer jeweiligen
+    Änderungs-ID unter <code>[% request.base %]/edit/<b>{ID}</b>.json</code> 
+    abgerufen werden.
 </p>
 
 <h2>Änderungen anmelden <small>per HTTP POST an [% request.base_uri %]/edit</small></h2>

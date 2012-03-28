@@ -10,7 +10,7 @@ my $pwd  = cwd;
 my $user = getlogin;
 
 die 'Expected to run in /home/$USER' unless $user and cwd eq "/home/$user";
-#die 'Expected to tun in an EMPTY account' if grep { $_ ne $0 } @dir;
+die 'Expected to tun in an EMPTY account' if grep { $_ ne $0 } @dir;
 
 # create bare git repository in ~/repository
 system("git init --bare repository") and die;

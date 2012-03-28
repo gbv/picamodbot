@@ -1,53 +1,15 @@
 [% INCLUDE "admin-nav.tt" %]
 
 <p>
-  Die API zum Markieren von <a href="[% uri_base %]/edit">Änderungen</a> ist nicht 
-  frei zugänglich. Über folgendes Formular können allerdings zum Testen Änderungen
-  markiert werden.
+   Unter der URL <a href="[% request.base %]done">[% request.base %]done</a> können
+   von ausgewählten IPs <a href="[% uri_base %]/done">Änderungen</a> als erledigt 
+   markiert werden. Es wird in JSON-Objekt zurückgeliefert, dass im Fehlerfall das
+   Feld <code>error</code> enthält und im Erfolgsfall die Änderung, wie sie unter
+   <code>/edit/<b>{ID}</b>.json</code> einsehbar ist.
 </p>
-<form action="[% request.base_uri %]/admin/done" method="post">
-<div class="row">
- <div class="span2">
-   <fieldset class="control-group [% IF malformed.edit %]error[% END %]">
-     <label for="record">Änderungs-ID</label>
-     <input class="span2" id="edit" name="edit" value="[% edit|html %]"/>
-   </fieldset>
- </div>
- <div class="span4">
-   <fieldset class="control-group [% IF malformed.status %]error[% END %]">
-     <label for="message">Nachricht</label>
-     <input class="span4" id="message" name="message" value="[% message|html %]">
-   </fieldset>
- </div>
- <div class="span3">
-  [% IF error %]
-    <label>&#xA0;</label>
-    <span class="badge badge-error">[% error|html %]</span>
-  [% END %]
- </div>
-</div>
-<div class="row">
-  <div class="span6">
-    <input name="status" type="submit" class="btn btn-success" value="1: Durchgeführt" />
-    <input name="status" type="submit" class="btn btn-info" value="2: Ignoriert" />
-    <input name="status" type="submit" class="btn btn-danger" value="-1: Abgelehnt" />
-    <a href="[% request.base_uri %]" class="btn">Abbrechen</a>
-  </div>
-</div>
-</form>
 
-<h3>Änderungswünsche einsehen</h3>
-<p>Die aktuell vorliegenden Änderungen können unter 
- <a href="[% base_uri %]/edit">[% base_uri %]/edit</a> 
- in verschiedenen Formaten (XML, JSON, TXT) abgerufen werden.
-</p>
-<h3>Änderungen vornehmen</h3>
+<h2>Änderungen erledigen <small>per HTTP GET an /done</small></h2>
 <p>
- Die API um Änderungen vorzunehmen, ist <i>nicht offen zugänglich</i>.
- Mit entsprechender Berechtigung kann an 
- <a href="[% base_uri %]/done">[% base_uri %]/done</a> eine
- HTTP-Anfrage geschickt werden. Folgende Parameter werden unterstützt:
-</p>  
   <table class="table table-striped">
    <thead>
     <tr>
@@ -79,6 +41,37 @@
 	</tr>
    </tbody>
   </table>
-<p>
+</p>    
 
+<h2>Webformular <small>zum Testen und Erledigen per Hand</small></h2>
+<form action="[% request.base_uri %]/admin/done" method="post">
+<div class="row">
+ <div class="span2">
+   <fieldset class="control-group [% IF malformed.edit %]error[% END %]">
+     <label for="record">Änderungs-ID</label>
+     <input class="span2" id="edit" name="edit" value="[% edit|html %]"/>
+   </fieldset>
+ </div>
+ <div class="span4">
+   <fieldset class="control-group [% IF malformed.status %]error[% END %]">
+     <label for="message">Nachricht</label>
+     <input class="span4" id="message" name="message" value="[% message|html %]">
+   </fieldset>
+ </div>
+ <div class="span3">
+  [% IF error %]
+    <label>&#xA0;</label>
+    <span class="badge badge-error">[% error|html %]</span>
+  [% END %]
+ </div>
+</div>
+<div class="row">
+  <div class="span6">
+    <input name="status" type="submit" class="btn btn-success" value="1: Durchgeführt" />
+    <input name="status" type="submit" class="btn btn-info" value="2: Ignoriert" />
+    <input name="status" type="submit" class="btn btn-danger" value="-1: Abgelehnt" />
+    <a href="[% request.base_uri %]" class="btn">Abbrechen</a>
+  </div>
+</div>
+</form>
 

@@ -1,20 +1,20 @@
 <div class="row">
   <div class="span12">
-[% base = base_uri _ '/admin' %]
-[% entry = request.path_info.split('/').last %]
-<ul class="nav nav-pills">
-  <li[% IF entry == 'admin' %] class="active"[% END %]>
-    <a href="[% base %]">Übersicht</a>
-  </li>
-  <li[% IF entry == 'done' %] class="active"[% END %]>
-    <a href="[% base %]/done">Erledigen</a>
-  </li>
-  <li[% IF entry == 'token' %] class="active"[% END %]>
-    <a href="[% base %]/token">Zugriff</a>
-  </li>
-  <li[% IF entry == 'backup' %] class="active"[% END %]>
-    <a href="[% base %]/backup">Backup</a>
-  </li>
-</ul>
+    [% base = base_uri _ '/admin' %]
+    [% entry = request.path_info.split('/').last %]
+    <ul class="nav nav-tabs">
+      <li[% IF entry == 'admin' %] class="active"[% END %]>
+        <a href="[% base %]">Übersicht</a>
+      </li>
+      <li[% IF entry == 'done' %] class="active"[% END %]>
+        <a href="[% base %]/done">Erledigen</a>
+      </li>
+      <li[% IF entry == 'token' %] class="active"[% END %]>
+        <a href="[% base %]/token">Zugriff</a>
+      </li>
+      <li[% IF entry == 'stats' %] class="active"[% END %]>
+        <a href="[% base %]/stats">Statistik</a>
+      </li>
+    </ul>
   </div>
 </div>

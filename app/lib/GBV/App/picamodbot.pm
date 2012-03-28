@@ -153,9 +153,7 @@ sub is_admin {
         }
     }
 
-    return 0 unless $admin_ips->find( request->address );
-
-    return 1;
+    return $admin_ips->find( request->address || '255.255.255.255' );
 }
 
 ## HTML Interface ##############################################################
@@ -168,6 +166,10 @@ hook 'before_template_render' => sub {
 
 get '/' => sub {
     template 'index', { };
+};
+
+get '/about' => sub {
+    template 'about';
 };
 
 hook 'before' => sub {
@@ -215,7 +217,7 @@ sub edit_done {
     my $message = param('message') // '';
 
     my $error;
-    my @mal;
+    my %mal;
 
     if ( $status !~ /^(-1|0|1|2)$/ ) {
         $error = "unknown status";
@@ -233,15 +235,15 @@ sub edit_done {
             # TODO: on error?
             redirect "/edit/$edit";
         } else {
-            @mal = ( 'edit' => ($error = "edit not found") );
+            %mal = ( 'edit' => ($error = "edit not found") );
         }
     } else {
-        @mal = ( 'edit' => ($error = "please provide edit ID") );
+        %mal = ( 'edit' => ($error = "please provide edit ID") );
     }
 
     my $vars = { status => $status, edit => $edit, message => $message };
     $vars->{error} = $error if $error;
-    $vars->{malformed} = \@mal;
+    $vars->{malformed} = \%mal;
 
     return $vars;
 }
@@ -259,11 +261,7 @@ any ['get','post'] => '/admin/done' => sub {
 };
 
 get '/admin' => sub {
-    my $vars = { };
-    # TODO: weitere Statistiken
-    my $sql = 'SELECT iln, count(iln) AS "count", max(created) AS "latest" FROM changes GROUP BY iln ORDER BY count(iln) DESC';
-    my $ilnstat = database->selectall_arrayref( $sql, { Slice => {} } );
-    template 'admin', { ilnstat => $ilnstat };
+    template 'admin';
 };
 
 any ['get','post'], '/admin/token' => sub {
@@ -283,19 +281,19 @@ any ['get','post'], '/admin/token' => sub {
     template 'token', { tokens => $tokens, %$tk };
 };
 
-any ['get','post'], '/admin/backup' => sub {
-    # TODO 
-    template 'backup';
+get '/admin/stats' => sub {
+    my $vars = { };
+
+    # TODO: weitere Statistiken
+    my $sql = 'SELECT iln, count(iln) AS "count", max(created) AS "latest" FROM changes GROUP BY iln ORDER BY count(iln) DESC';
+    my $ilnstat = database->selectall_arrayref( $sql, { Slice => {} } );
+
+    template 'admin-stats', { ilnstat => $ilnstat };
 };
 
 ## REST API ####################################################################
 
 set serializer => 'JSON';
-
-get '/admin/token.json' => sub {
-    my $token = [ database->quick_select('tokens',{}) ];
-    { 'token' => $token };
-};
 
 resource 'edit' =>
     get    => \&get_edit,

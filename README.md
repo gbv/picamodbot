@@ -1,6 +1,5 @@
 This application is used to collect change requests in PICA+ records.
 
-
 # Prerequisites
 
 1. A Unix based operating system (Ubunutu recommended). On Windows you 
@@ -12,32 +11,34 @@ This application is used to collect change requests in PICA+ records.
 
 4. Some development tools and header files
 
-     sudo apt-get install build-essential libexpat1-dev libssl-dev
+       sudo apt-get install build-essential libexpat1-dev libssl-dev
 
 5. Cpanminus and Carton for managing Perl dependencies.
 
-     wget -O - http://cpanmin.us | sudo perl - --self-upgrade
-     sudo cpanm Carton`
+       wget -O - http://cpanmin.us | sudo perl - --self-upgrade
+       sudo cpanm Carton`
 
 6. For optional support of HTTPS you need to install LWP::Protocol::https,
    which requires Net::SSLeay. You can install it as root:
 
-     sudo apt-get install libnet-ssleay-perl
-     sudo cpanm LWP::Protocol::https
+       sudo apt-get install libnet-ssleay-perl
+       sudo cpanm LWP::Protocol::https
 
 
 # Installation at several PaaS cloud providers
 
 ## Installation at dotCloud
 
-...
+To deploy this application on your [dotCloud] account:
+
+    dotcloud push picamodbot
 
 ## Installation at OpenShift
 
 See L<https://openshift.redhat.com/app/> (not tested yet)
 
 
-# Installation at a production server
+# Installation at your own production server
 
 1. Choose a server to install at. A clean Ubuntu is recommended.
 
@@ -45,21 +46,21 @@ See L<https://openshift.redhat.com/app/> (not tested yet)
 
 3. Add a dedicated user account to run the application as (replace $USER).
 
-     sudo adduser $USER 
+       sudo adduser $USER 
 
 4. Log in as this user, copy `init-production.pl` to the 
    home directory, and run it to initialize the deployment environment:
 
-     init-production.pl
+       ~/init-production.pl
 
 5. Switch to your development machine and add the new home directory
    at the server as git remote (replace $USER and $SERVER):
 
-     git remote add prod $USER@$SERVER:~/repository
+       git remote add prod $USER@$SERVER:~/repository
 
 6. Push the current version to the master, whenever needed
 
-     git push prod master
+       git push prod master
 
 
 # TODO
@@ -82,12 +83,6 @@ this includes location of the database and access to the admin interface.
  
 - `production.yml` for production installation at VZG.
   Admin access is restricted to specific IPs
-
-# Installation
-
-To deploy this application on your [dotCloud] account:
-
-    dotcloud push picamodbot
 
 # Credits
 
