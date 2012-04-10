@@ -252,7 +252,7 @@ sub result_edit {
         #TODO: some error message?
     } else {
         $edit->{before} = $pica;
-        my $after = remove_tags( $edit, $pica ); 
+        my $after = modify_record( $edit, $pica ); 
         $edit->{after}  = $after;
 
 #        use Text::Diff;

@@ -11,7 +11,7 @@ use PICA::Record;
 # an edit is just an unblessed hash reference
 
 use base 'Exporter';
-our @EXPORT = qw(new_edit validate_edit remove_tags);
+our @EXPORT = qw(new_edit validate_edit modify_record);
 
 # Creates an new edit with partly normalized (but not validated) values
 sub new_edit {
@@ -149,7 +149,7 @@ sub edit_record {
 # remove tags from a PICA record
 # PICA, TAGS (as array), ILN, ELN
 # may die
-sub remove_tags {
+sub modify_record {
     my ($edit, $pica) = @_;
 
     my $iln = $edit->{iln};
@@ -163,24 +163,21 @@ sub remove_tags {
     my @level1 = grep /^1/, @$tags;
     my @level2 = grep /^2/, @$tags;
 
+    # Level 0
     my $result = $pica->main;
     $result->remove( @level0 ) if @level0;
     $result->append( $add->main );    
-    $result->sort;
 
-    # TODO: sort pica->main
-
+    # Level 1
     foreach my $h ( $pica->holdings ) {
         if (@level1 and (!$iln or $h->iln eq $iln)) {
             $h->remove( map { $_ =~ qr{/} ? $_ : "$_/.." } @level1 );
         } 
-
-        # TODO: level2 nicht nicht unterstützt
-
         $result->append( $h->fields );
+
+        # TODO: level2 noch nicht nicht unterstützt
     }
 
-# TODO: scheint kaputt zu sein: innerhalb von Exemplarsätze soll anders sortiert werden
     $pica->sort;
     $result->sort;
     return $result;

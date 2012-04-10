@@ -22,11 +22,3 @@
 [%- END -%]
 </pre>
 
-<h2>Diff</h2>
-[% diff %]
-
-<!--h2>Before</h2>
-<pre>[% before %]</pre>
-
-<h2>After</h2>
-<pre>[% after %]</pre-->
