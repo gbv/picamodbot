@@ -2,7 +2,9 @@
     <div><small>
         Auch zum Abruf per HTTP als
        <a href="[% uri_base %]/edit.json" class="btn btn-small">JSON</a> und 
-       <a href="[% uri_base %]/edit.txt" class="btn btn-small">TXT</a>
+       <a href="[% uri_base %]/edit.xml" class="btn btn-small">
+         <img src="[% uri_base %]/img/feed-icon-14x14.png">&#xA0;Atom
+       </a>
     </small></div>
 </h1>
 <div class="row">

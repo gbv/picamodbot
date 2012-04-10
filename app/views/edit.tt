@@ -11,7 +11,8 @@
 <tbody>
   <tr>
     <th style="text-align:right; border-top:none">Änderungs-ID: </th>
-    <td style="border-top:none">[% edit %]</td>
+    <td style="border-top:none"><code>[% edit %]</code> <a href="[% base_uri %]/edit/[% edit %].json">.json</a>
+    </td>
   </tr>
   <tr>
     <th style="text-align:right;"> Datensatz: </th>
@@ -21,20 +22,52 @@
     <th style="text-align:right">Eingereicht: </th>
     <td><tt>[% created %]</tt></td>
   </tr>
+[% IF iln %]
   <tr>
     <th style="text-align:right">ILN: </th>
     <td>[% iln %]</td>
   </tr>
+[% END %]
 [% IF deltags %]
   <tr>
     <th style="text-align:right">Tags entfernen: </td>
-     <td><span class="pica-tag">[% deltags.split(',').join('</span>, <span class="pica-tag">') %]</span></td>
+     <td>
+       [% IF predict.deltag %]
+         <table class="table-condensed"><tr>
+           [% FOREACH tag IN predict.deltag.pairs %]
+             <td><span class="pica-tag">[% tag.key %]</span></td>
+           [% END %]
+         </tr><tr>
+           [% FOREACH tag IN predict.deltag.pairs %]
+             [% IF tag.value == 0 %]
+               <td style="text-align:center; background: #D9EDF7;" title="[% tag.key %] ist derzeit nicht vorhanden">&#x2014;</td>
+             [% ELSIF tag.value == -1 %]
+               <td style="text-align:center; background: #F2DEDE;" title="[% tag.key %] kann nicht entfernt werden">&#x2014;</td>
+             [% ELSE %]
+               <td style="text-align:center; background: #DFF0D8;" title="[% tag.key %] ist derzeit [% tag.value %] mal vorhanden">×[% tag.value %]</td>
+             [% END %]
+           [% END %]
+         </tr></table>
+       [% ELSE %]
+         <span class="pica-tag">[% deltags.split(',').join('</span>, <span class="pica-tag">') %]</span>
+       [% END %]
+    </td>
   </tr>
 [% END %]
 [% IF addfields %]
   <tr style="text-align:right">
     <th style="text-align:right">Tags hinzufügen: </td>
-    <td>[% addfields|html %]</td>
+    <td>
+      [% IF predict.add %]
+        [% FOREACH f IN predict.add.pairs %]
+          <div style="padding:2px;background:[% IF f.value == 1 %]#DFF0D8[% ELSIF f.value == 0 %]#D9EDF7[% ELSE %]#F2DEDE[% END %]">
+            [% f.key|html %]
+          </div>
+        [% END %]
+      [% ELSE %]
+        [% addfields|html %]
+      [% END %]
+    </td>
   </tr>
 [% END %]
   <tr>
@@ -56,8 +89,17 @@
        <span class="badge">in Bearbeitung</span> 
     [% END %]
   </tr>
+  <tr>
+    <th style="text-align:right">Ergebnis: </th>
+    <td>
+      <a href="[% base_uri %]/result/[% edit %]">als HTML-Diff</a>,
+      <a href="[% base_uri %]/result/[% edit %].pp">als PICA+</a>,
+      <a href="[% base_uri %]/result/[% edit %].normpp">als normalisiertes PICA+</a>
+    </td>
+  </tr>
 </tbody>
 </table> 
+[% foo %]
 </div>
 <ul class="pager">
   [% IF edit > 1 %]

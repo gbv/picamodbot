@@ -13,4 +13,9 @@ plugins:
     Database:
         driver: 'SQLite'
         database: 'picamodbot.sqlite'
+    Feed:
+        title: 'Änderungen'
+        format: Atom
+
+unapi: 'http://unapi.gbv.de/'
 

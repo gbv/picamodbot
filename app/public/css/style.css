@@ -25,6 +25,9 @@ tfoot {
   background: #fff;
 }
 
+.added { background: green; }
+.removed { background: red; }
+
 footer {
   clear: both;
   padding-top: 2em;

@@ -23,10 +23,15 @@ WriteMakefile(
         'Plack::Runner' => 0,
         'Dancer::Plugin::Database' => 1.80,
         'Dancer::Plugin::REST'     => 0,
-        'PICA::Record'             => 0,
+        'Dancer::Plugin::Feed'     => 0,
+        'DateTime::Format::RFC3339' => 0,
+        'POSIX'     => 0,
+
+        'PICA::Record'             => 0.583,
         'Test::JSON::Entails'      => 0.1,
         # ...
         'Crypt::OpenSSL::Random'   => 0.04,
+        'Text::Diff'    => 1.37,
 
         'Plack::Handler::Starman'  => 0, # required to deploy with starman
     },

@@ -9,8 +9,11 @@ use Dancer ':syntax';
 use PICA::Record;
 use Dancer::Plugin::Database;
 use Dancer::Plugin::REST;
+use Dancer::Plugin::Feed;
 use LWP::Simple qw();
 use JSON::Any;
+use DateTime::Format::RFC3339;
+use POSIX;
 
 use Try::Tiny;
 
@@ -55,7 +58,7 @@ sub checked_edit {
     return $edit if $edit->{error};
 
     try {
-        validate_edit($edit);
+        validate_edit( $edit, config->{unapi} );
     } catch {
         $edit->{error} = $_ // "invalid query";
         $edit->{error} =~ s/ at .* line .*$//sm;
@@ -90,32 +93,13 @@ sub get_changes {
 	return $changes;
 }
 
-sub change_as_txt {
-	my $c = shift;
-	my $txt = sprintf ":%s\n", join "|", (
-		$c->{edit} // '',
-		$c->{created} // '',
-		$c->{record} // '',
-		$c->{iln} // '',
-		# TODO: STATUS?
-	);
-	if ($c->{deltags}) {
-		$txt .= join("\n", map { "-$_" } split ",", $c->{deltags})."\n";
-	}
-	if ($c->{addfields}) {
-		$txt .= join("\n", map { "+$_" } split "\n", $c->{addfields})."\n";
-	}
-	return $txt;
-}
-
 sub get_edit {
     my $id = shift // param('id');
-    # TODO: weitere Anfrage-Parameter
     my $edit = database->quick_select( 'changes', { edit => $id } );
     if ($edit and $edit->{edit}) {
         my $attempts = [ 
             database->quick_select( 'edits', { edit => $id }, { order_by => { desc => 'timestamp' } } ) 
-        ]; # TODO order by
+        ];
         if ($attempts and @$attempts) {
             delete $_->{edit} for @$attempts;
             $edit->{attempts} = $attempts;
@@ -200,7 +184,7 @@ get '/webapi' => sub {
 
 post '/webapi' => sub {
 	my $edit = checked_edit;
-	if (param('preview')) {
+	if (param('result')) {
 		template 'webapi', $edit;
 	} else {
 		store_edit($edit);
@@ -215,10 +199,70 @@ get qr{/edit/([^./]+)(\.html)?$} => sub {
         status(404);
         $edit->{title} = "Änderung nicht gefunden";
     } else {
+        validate_edit( $edit, config->{unapi} );
         $edit->{json} = JSON::Any->new(pretty =>1)->encode( $edit );
     }
     template 'edit' => $edit;
 };
+
+get '/result' => sub {
+    redirect '/edit';
+};
+
+get qr{/result/([^./]+)(\.html)?$} => sub {
+    my ($id) = splat;
+    my $edit = get_result($id);
+    if (!$edit) {
+        status(404);
+        $edit = { title => "Änderung nicht gefunden" };
+    }
+    template 'result' => $edit;
+};
+
+get qr{/result/([^./]+)\.(normpp|pp)$} => sub {
+    my ($id, $format) = splat;
+    my $edit = get_result($id);
+
+    content_type('text/plain; charset=utf-8');
+
+    if (!$edit->{edit}) {
+        status(404);
+        return "not found";
+    }
+
+    return $format eq 'normpp' ? $edit->{after}->normalized : $edit->{after}->string;
+};
+
+sub get_result {
+    my $id = shift; # edit id
+    my $edit = get_edit($id) or return;
+    result_edit( $edit );
+    return $edit;
+}
+
+sub result_edit {
+    my $edit = shift;
+    my $url = config->{unapi}.'id='.$edit->{record}.'&format=pp';
+    my $pica = eval { 
+        PICA::Record->new( LWP::Simple::get( $url ) ); 
+    };
+    if (!$pica) {
+        #$self->{malformed}->{record} //= "not found";
+        #croak "Failed to get PICA+ record";
+        #TODO: some error message?
+    } else {
+        $edit->{before} = $pica;
+        my $after = remove_tags( $edit, $pica ); 
+        $edit->{after}  = $after;
+
+#        use Text::Diff;
+#        my $a = [ map { "$_" } $edit->{before}->fields ];
+#        my $b = [ map { "$_" } $edit->{after}->fields ];
+#        $edit->{diff} = diff $a, $b;
+#      TODO
+    }
+
+}
 
 sub edit_done {
     my $status  = 1*(param('status') || 0);
@@ -312,35 +356,51 @@ resource 'edit' =>
 
 prepare_serializer_for_format;
 
-get "/edit.txt" => sub {
-	my $changes = get_changes;
-	my $txt = <<'TXT';
-#
-# This plain text, line based format contains a list of PICA+ record changes.
-#
-# lines that start with `#` are comments. Ignore comments and empty lines
-# lines that start with `-` denote PICA+ tags to remove.
-# lines that start with `|` denote which PICA+ record to modify. Such lines
-#   have format `|id|timestamp|record|iln|` where 
-#     `id` is the unique id of a changeset
-#     `timestamp` is the date and time when the change was received
-#     `record` is the qualified record id (format `DBKEY:ppn:PPN`)
-#     `iln` is the internal library number
-#
-TXT
-	$txt .= join("\n", map { change_as_txt($_) } @$changes)."\n";
-	content_type("text/plain");
-	return $txt;
+get "/edit.json" => sub {
+	{ changes => get_changes };
 };
 
-get "/edit.:format" => sub {
-	{ changes => get_changes };
+sub sqlite3_timestamp_to_rfc3339 {
+    my $timestamp = shift;
+
+    my $m = strftime("%z", localtime);
+    $m =~ s/^\+(..)(..)$/+$1:$2/;
+    $m = $timestamp . $m;
+    $m =~ s/ /T/;
+
+    $timestamp = eval { DateTime::Format::RFC3339->new->parse_datetime($m); };
+
+    return $timestamp;
+}
+
+# Atom Feed (TODO: add paging)
+get "/edit.xml" => sub {
+    # TODO: sortieren nach Datum!
+    my $changes = get_changes;
+    my $title = 'Änderungen'; # TODO: fix this at another place
+    utf8::decode($title); 
+    create_atom_feed ( 
+        title => $title,
+        entries => [ 
+            map { 
+                { 
+                    title    => $_->{record},
+                    issued   => sqlite3_timestamp_to_rfc3339($_->{created}),
+                    modified => sqlite3_timestamp_to_rfc3339($_->{timestamp}),
+                    link     => request->uri_base . '/edit/' . $_->{edit},
+                    # TODO: alternate links
+# TODO: informationen wie auf der HTML-Seite
+#                    summary =>
+#                   content => (type=xhtml?)
+                } 
+            } @$changes
+        ]
+    );
 };
 
 ## Deprecated routes ###########################################################
 
 get "/changes" => sub { redirect '/edit' };
-get "/changes.txt" => sub { redirect '/edit.txt' };
 get "/changes.json" => sub { redirect '/edit.json' };
 get "/changes.xml" => sub { redirect '/edit.xml' };
 

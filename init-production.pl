@@ -118,8 +118,7 @@ if [ -f $PIDFILE ]; then
 fi
 
 cd current/app
-echo "[POST_RECEIVE] Starting starman as deamon on port $PORT (pid in $PIDFILE)"
+echo "[RESTART] Starting starman as deamon on port $PORT (pid in $PIDFILE)"
 export PLACK_ENV=production
 carton exec -Ilib -- starman --port $PORT -D --pid $PIDFILE
-
 

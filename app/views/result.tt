@@ -1,0 +1,32 @@
+
+<p>Preview of edit <a href="[% base_uri %]/edit/[% edit %]">[% edit %]</a></p>
+
+[% af = before.all_fields %]
+[% bf = after.all_fields %]
+[% max = bf.size + af.size %]
+<pre>
+[%- FOREACH i in [ 0 .. max ] -%]
+    [%- IF af.size == 0 -%]
+<span class="added">+ </span>[% bf.shift -%]
+    [%- ELSIF bf.size == 0 -%]
+<span class="removed">- </span>[% af.shift -%]
+    [%- ELSIF (af.0 _ "") == (bf.0 _ "") -%]
+<span>&#xA0; </span>[% af.shift -%]
+    [%- b = bf.shift -%]
+    [%- ELSIF (af.0 _ "") > (bf.0 _ "") -%]
+<span class="added">+ </span>[% bf.shift -%]
+    [%- ELSE -%]
+<span class="removed">- </span>[% af.shift -%]
+    [%- END -%]
+    [%- IF (af.size + bf.size) == 0; THEN; LAST; END -%]
+[%- END -%]
+</pre>
+
+<h2>Diff</h2>
+[% diff %]
+
+<!--h2>Before</h2>
+<pre>[% before %]</pre>
+
+<h2>After</h2>
+<pre>[% after %]</pre-->
