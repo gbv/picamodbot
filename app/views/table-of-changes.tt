@@ -1,0 +1,42 @@
+<div class="row">
+<div class="span12">
+[% IF changes AND changes.size %]
+<table class="table table-striped table-condensed tablesorter">
+  <thead>
+   <tr>
+    <th>#</th>
+    <th>timestamp</th>
+    <th>record</th>
+    <th>iln</th>
+    <th>delete</th>
+    <th>add</th>
+    <th></th>
+    <th>status</th>
+   </tr>
+  </thead>
+  <tbody>
+[% FOREACH c IN changes %]
+   <tr>
+    <td><a href="[% base_uri %]/edit/[% c.edit %]">[% c.edit %]</a></td>
+	<td>[% c.created %]</td>
+    <td><a href="http://unapi.gbv.de/?id=[% c.record %]&format=picahtml">[% c.record %]</td>
+    <td>[% c.iln %]</td>
+    <td>[% c.deltags|truncate(40) %]</td>
+    <td>[% c.addfields|truncate(40) %]</td>
+    <td style="text-align:center">
+      <a href="[% base_uri %]/edit/[% c.edit %]"><span class="badge 
+        [%- IF c.status == 1 %]badge-success" title="done">1
+        [%- ELSIF c.status == -1 %]badge-error" title="failed">-1
+        [%- ELSIF c.status == 2 %]badge-info" title="empty">2
+        [%- ELSE %]" title="queued">0[% END %]</span></a>
+    </td>
+    <td><span title="[% c.message|html %]">[% c.timestamp %]</span></td>
+   </tr>
+[% END %] 
+  </tbody>
+</table>
+[% ELSE %]
+ <p>Es liegen momentan keine Änderungen vor.</p>
+[% END %]
+</div>
+</div>

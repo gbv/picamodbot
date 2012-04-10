@@ -12,11 +12,11 @@
     Eine Liste ausstehender <a href="[% base_uri %]/edit">Änderungen</a> ist unter
     <a href="[% base_uri %]/edit.json">[% request.base %]edit.json</a> im 
     JSON-Format abrufbar. Einzelne Änderungen können mit ihrer jeweiligen
-    Änderungs-ID unter <code>[% request.base %]/edit/<b>{ID}</b>.json</code> 
+    Änderungs-ID unter <code>[% request.base %]edit/<b>{ID}</b>.json</code> 
     abgerufen werden.
 </p>
 
-<h2>Änderungen anmelden <small>per HTTP POST an [% request.base_uri %]/edit</small></h2>
+<h2>Änderungen anmelden <small>per HTTP POST an <code>[% request.base_uri %]/edit</code></small></h2>
 <p>
   <table class="table table-striped">
    <thead>

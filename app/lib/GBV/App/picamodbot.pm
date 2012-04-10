@@ -93,6 +93,11 @@ sub get_changes {
 	return $changes;
 }
 
+sub get_queue {
+    my $changes = get_changes;
+    return [ grep { $_->{status} == 0 } @$changes ];
+}
+
 sub get_edit {
     my $id = shift // param('id');
     my $edit = database->quick_select( 'changes', { edit => $id } );
@@ -176,6 +181,12 @@ hook 'before' => sub {
 
 get qr{^/edit/?} => sub {
 	template 'edit-list', { changes => get_changes };
+};
+
+get qr{^/queue/?} => sub {
+    my $changes = get_changes;
+    $changes = [ grep { $_->{status} == 0 } @$changes ];
+	template 'queue', { changes => $changes };
 };
 
 get '/webapi' => sub {
@@ -360,6 +371,10 @@ get "/edit.json" => sub {
 	{ changes => get_changes };
 };
 
+get "/queue.json" => sub {
+	{ changes => get_queue };
+};
+
 sub sqlite3_timestamp_to_rfc3339 {
     my $timestamp = shift;
 
@@ -373,10 +388,8 @@ sub sqlite3_timestamp_to_rfc3339 {
     return $timestamp;
 }
 
-# Atom Feed (TODO: add paging)
-get "/edit.xml" => sub {
-    # TODO: sortieren nach Datum!
-    my $changes = get_changes;
+sub make_feed {
+    my $changes = shift;
     my $title = 'Änderungen'; # TODO: fix this at another place
     utf8::decode($title); 
     create_atom_feed ( 
@@ -396,6 +409,15 @@ get "/edit.xml" => sub {
             } @$changes
         ]
     );
+}
+
+# Atom Feed (TODO: add paging)
+get "/edit.xml" => sub {
+    make_feed( get_changes );
+};
+
+get "/queue.xml" => sub {
+    make_feed( get_queue );
 };
 
 ## Deprecated routes ###########################################################

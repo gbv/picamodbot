@@ -1,15 +1,16 @@
-<h1>Alle Änderungen
+<h1>Ausstehende Änderungen
     <div><small>
         Auch zum Abruf per HTTP als
-       <a href="[% uri_base %]/edit.json" class="btn btn-small">JSON</a> und 
-       <a href="[% uri_base %]/edit.xml" class="btn btn-small">
+       <a href="[% uri_base %]/queue.json" class="btn btn-small">JSON</a> und 
+       <a href="[% uri_base %]/queue.xml" class="btn btn-small">
          <img src="[% uri_base %]/img/feed-icon-14x14.png">&#xA0;Atom
        </a>
     </small></div>
 </h1>
 
-<p>Siehe auch: <a href="[% uri_base %]/queue">Ausstehende Änderungen</a></p>
+<p>Siehe auch: <a href="[% uri_base %]/edit">Alle Änderungen</a></p>
 
 [% INCLUDE "table-of-changes.tt" %]
 
 <p>Weitere Änderungswünsche können über <a href="[% base_uri %]/webapi">die API</a> angemeldet werden.</p>
+
