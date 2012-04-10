@@ -392,7 +392,7 @@ sub make_feed {
     my $changes = shift;
     my $title = 'Änderungen'; # TODO: fix this at another place
     utf8::decode($title); 
-    create_atom_feed ( 
+    my $feed = create_atom_feed ( 
         title => $title,
         entries => [ 
             map { 
@@ -409,6 +409,12 @@ sub make_feed {
             } @$changes
         ]
     );
+    my $relbase = "http://purl.org/ontology/gbv";
+    $feed =~ s{<link rel="alternate" href="([^"]+)/edit/(\d+)" type="text/html"/>}
+   {<link rel="alternate" href="$1/edit/$2" type="text/html"/>    
+    <link rel="$relbase/result-normpp" href="$1/result/$2.normpp" type="text/plain"/>
+    <link rel="$relbase/result-pp" href="$1/result/$2.pp" type="text/plain"/>}g;
+    return $feed;
 }
 
 # Atom Feed (TODO: add paging)
