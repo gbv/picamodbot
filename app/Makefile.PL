@@ -23,7 +23,7 @@ WriteMakefile(
         'Plack::Runner' => 0,
         'Dancer::Plugin::Database' => 1.80,
         'Dancer::Plugin::REST'     => 0,
-        'Dancer::Plugin::Feed'     => 0,
+#        'Dancer::Plugin::Feed'     => 0,
         'DateTime::Format::RFC3339' => 0,
         'POSIX'     => 0,
 

@@ -9,7 +9,7 @@ use Dancer ':syntax';
 use PICA::Record;
 use Dancer::Plugin::Database;
 use Dancer::Plugin::REST;
-use Dancer::Plugin::Feed;
+#use Dancer::Plugin::Feed;
 use LWP::Simple qw();
 use JSON::Any;
 use DateTime::Format::RFC3339;
@@ -388,6 +388,7 @@ sub sqlite3_timestamp_to_rfc3339 {
     return $timestamp;
 }
 
+=head1
 sub make_feed {
     my $changes = shift;
     my $title = 'Änderungen'; # TODO: fix this at another place
@@ -425,6 +426,7 @@ get "/edit.xml" => sub {
 get "/queue.xml" => sub {
     make_feed( get_queue );
 };
+=cut
 
 ## Deprecated routes ###########################################################
 
