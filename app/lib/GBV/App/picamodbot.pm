@@ -180,13 +180,12 @@ hook 'before' => sub {
 };
 
 get qr{^/edit/?} => sub {
-	template 'edit-list', { changes => get_changes };
-};
-
-get qr{^/queue/?} => sub {
     my $changes = get_changes;
-    $changes = [ grep { $_->{status} == 0 } @$changes ];
-	template 'queue', { changes => $changes };
+    my $status  = param('status') // -99;
+    if ($status >= -1 and $status <= 2) {
+        $changes = [ grep { $_->{status} == $status } @$changes ];
+    }
+    template 'edit-list', { changes => $changes, status => $status };
 };
 
 get '/webapi' => sub {
@@ -433,6 +432,11 @@ get "/queue.xml" => sub {
 get "/changes" => sub { redirect '/edit' };
 get "/changes.json" => sub { redirect '/edit.json' };
 get "/changes.xml" => sub { redirect '/edit.xml' };
+
+get "/queue" => sub { redirect '/edit?status=0' };
+get "/queue.json" => sub { redirect '/edit.json?status=0' };
+get "/queue.xml" => sub { redirect '/edit.xml?status=0' };
+
 
 ## Initialize database on startup ##############################################
 

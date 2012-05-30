@@ -1,14 +1,43 @@
-<h1>Alle Änderungen
+<h1>
+    Änderungen
     <div><small>
         Auch zum Abruf per HTTP als
-       <a href="[% uri_base %]/edit.json" class="btn btn-small">JSON</a> und 
-       <a href="[% uri_base %]/edit.xml" class="btn btn-small">
+       <a href="[% uri_base %]/edit.json[% IF status >= -1 ; THEN %]?status=[% status ; END %]" class="btn btn-small">JSON</a> und 
+       <a href="[% uri_base %]/edit.xml[% IF status >= -1 ; THEN %]?status=[% status ; END %]" class="btn btn-small">
          <img src="[% uri_base %]/img/feed-icon-14x14.png">&#xA0;Atom
        </a>
     </small></div>
 </h1>
 
-<p>Siehe auch: <a href="[% uri_base %]/queue">Ausstehende Änderungen</a></p>
+<ul class="nav nav-tabs">
+  <li[% IF status < -1 %] class="active"[% END %]>
+    <a href="[% uri_base %]/edit">Alle</a>
+  </li>
+  <li[% IF status == 0 %] class="active"[% END %]>
+    <a href="[% uri_base %]/edit?status=0">
+      Ausstehend
+      <span class="badge">&#xA0;</span>
+    </a>
+  </li>
+  <li[% IF status == 1 %] class="active"[% END %]>
+    <a href="[% uri_base %]/edit?status=1">
+      Durchgeführt
+      <span class="badge badge-success">&#xA0;</span>
+    </a>
+  </li>
+  <li[% IF status == 2 %] class="active"[% END %]>
+    <a href="[% uri_base %]/edit?status=2">
+      Ignoriert
+      <span class="badge badge-info">&#xA0</span>
+    </a>
+  </li>
+  <li[% IF status == -1 %] class="active"[% END %]>
+    <a href="[% uri_base %]/edit?status=-1">
+      Verworfen
+      <span class="badge badge-error">&#xA0;</span>
+    </a>
+  </li>
+</ul>
 
 [% INCLUDE "table-of-changes.tt" %]
 
