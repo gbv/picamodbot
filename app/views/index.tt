@@ -14,11 +14,11 @@
 <p>
     Ein Änderungswunsch bestehen aus:
     <ul>
-        <li>der qualifizierten Datensatz-ID</li>
-        <li>einer (ggf. leeren) Liste von PICA+ Feldern, die vollständig gelöscht werden sollen</li>
-        <li>einer (ggf. leeren) Liste von PICA+ Feldern, die hinzugefügt werden sollen</li>
-        <li>ggf. einer ILN zur Auswahl einer Bibliothek</li>
-        <li>ggf. einer EPN zur Auswahl eines Exemplars</li>
+        <li>der qualifizierten <b>Datensatz-ID</b> in der Form <code>{dbkey}:ppn:{ppn}</code></li>
+        <li>einer (ggf. leeren) Liste von <b>PICA+ Feldern, die gelöscht</b> werden sollen</li>
+        <li>einer (ggf. leeren) Liste von <b>PICA+ Feldern, die hinzugefügt</b> werden sollen</li>
+        <li>ggf. einer <b>ILN</b> zur Auswahl einer Bibliothek</li>
+        <li>ggf. einer <b>EPN</b> zur Auswahl eines Exemplars</li>
     </ul>
     Das Löschen oder Neuanlegen von Datensätzen ist bislang nicht möglich.
 </p>

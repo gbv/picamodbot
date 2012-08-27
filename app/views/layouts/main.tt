@@ -26,7 +26,7 @@
 <div class="navbar navbar-fixed-top">
  <div class="navbar-inner">
   <div class="container">
-    <a class="brand" href="[% uri_base %]">picamodbot</a>
+    <a class="brand" href="[% base_uri %]/">picamodbot</a>
     <ul class="nav">
       <li[% IF request.path_info.match('^/$') %] class="active"[% END %]>
         <a href="[% base_uri %]/">Übersicht</a>

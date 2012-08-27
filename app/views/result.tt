@@ -1,24 +1,64 @@
+<h2>Änderungsvorschau</h2>
 
-<p>Preview of edit <a href="[% base_uri %]/edit/[% edit %]">[% edit %]</a></p>
+<p>Vorschau der Änderung <a href="[% base_uri %]/edit/[% edit %]">[% edit %]</a></p>
+Status: [% edit.status %]
 
 [% af = before.all_fields %]
 [% bf = after.all_fields %]
 [% max = bf.size + af.size %]
-<pre>
-[%- FOREACH i in [ 0 .. max ] -%]
-    [%- IF af.size == 0 -%]
-<span class="added">+ </span>[% bf.shift -%]
-    [%- ELSIF bf.size == 0 -%]
-<span class="removed">- </span>[% af.shift -%]
-    [%- ELSIF (af.0 _ "") == (bf.0 _ "") -%]
-<span>&#xA0; </span>[% af.shift -%]
-    [%- b = bf.shift -%]
-    [%- ELSIF (af.0 _ "") > (bf.0 _ "") -%]
-<span class="added">+ </span>[% bf.shift -%]
-    [%- ELSE -%]
-<span class="removed">- </span>[% af.shift -%]
-    [%- END -%]
-    [%- IF (af.size + bf.size) == 0; THEN; LAST; END -%]
-[%- END -%]
-</pre>
+[% linebuf = [ ] %]
+[% diffsince = 0 %]
 
+[% MACRO flushbuf BLOCK %]
+  [% IF linebuf.size > 4 %]
+    [% x = linebuf.shift %]
+    <tr><td class="diffline etc"><pre class="line">&#xA0; ...</pre></td></tr>
+  [% END %]
+  [% WHILE linebuf.size %]
+    [% diffline( "", linebuf.shift ) %]
+  [% END %]
+  [% diffsince = 0 %]
+[% END %]
+
+[% MACRO diffline(action,line) BLOCK %]
+<tr>
+  <td class="diff-line [% action %]">
+    <pre class="line">[% 
+        IF action == 'insert' %]+ [% 
+        ELSIF action == 'delete'%]- [% 
+        ELSE %]&#xA0; [% END %][% line %]</pre>
+  </td>
+</tr>
+[% END %]
+
+<table class="diff-table">
+  [%- FOREACH i in [ 0 .. max ] -%]
+      [%- IF af.size == 0 -%]
+        [% flushbuf %]
+        [% diffline( "insert", bf.shift ) %]
+      [%- ELSIF bf.size == 0 -%]
+        [% flushbuf %]
+        [% diffline( "delete", af.shift ) %]
+      [%- ELSIF (af.0 _ "") == (bf.0 _ "") -%]
+        [% diffsince = diffsince + 1 %]
+        [% l = af.shift %]
+        [% IF diffsince < 3 %]
+          [% diffline( "", l ) %]
+        [% ELSE %]
+          [% IF linebuf.size > 4 %]
+            [% x = linebuf.shift %]
+          [% END %]
+          [% linebuf.push( l ) %]
+        [% END %]
+        [% b = bf.shift %]
+      [%- ELSIF (af.0 _ "") > (bf.0 _ "") -%]
+        [% flushbuf %]
+        [% diffline( "insert", bf.shift ) %]
+      [%- ELSE -%]
+        [% flushbuf %]
+        [% diffline( "delete", af.shift ) %]
+      [%- END -%]
+      [%- IF (af.size + bf.size) == 0; THEN; LAST; END -%]
+  [%- END -%]
+  [% flushbuf %]
+</table>

@@ -5,6 +5,8 @@ use 5.010;
 use strict;
 use warnings;
 
+# TODO: simplify, by combining database tables
+
 use Dancer ':syntax';
 use PICA::Record;
 use Dancer::Plugin::Database;
@@ -202,6 +204,17 @@ post '/webapi' => sub {
 	}
 };
 
+get qr{/edit/([^./]+).check$} => sub {
+    my ($id) = splat;
+    my $edit = get_edit($id);
+
+    if (! $edit->{status} ) {
+        get_result($id);
+    }
+
+    redirect "/edit/$id";
+};
+
 get qr{/edit/([^./]+)(\.html)?$} => sub {
     my ($id) = splat;
     my $edit = get_edit($id);
@@ -215,17 +228,17 @@ get qr{/edit/([^./]+)(\.html)?$} => sub {
     template 'edit' => $edit;
 };
 
+# Falls keine Bearbeitungs-ID angegeben
 get '/result' => sub {
     redirect '/edit';
 };
 
 get qr{/result/([^./]+)(\.html)?$} => sub {
     my ($id) = splat;
-    my $edit = get_result($id);
-    if (!$edit) {
+    my $edit = get_result($id) || do {
         status(404);
-        $edit = { title => "Änderung nicht gefunden" };
-    }
+        { title => "Änderung nicht gefunden" };
+    };
     template 'result' => $edit;
 };
 
@@ -245,6 +258,7 @@ get qr{/result/([^./]+)\.(normpp|pp)$} => sub {
 
 sub get_result {
     my $id = shift; # edit id
+
     my $edit = get_edit($id) or return;
     result_edit( $edit );
     return $edit;
@@ -252,6 +266,7 @@ sub get_result {
 
 sub result_edit {
     my $edit = shift;
+
     my $url = config->{unapi}.'id='.$edit->{record}.'&format=pp';
     my $pica = eval { 
         PICA::Record->new( LWP::Simple::get( $url ) ); 
@@ -262,22 +277,33 @@ sub result_edit {
         #TODO: some error message?
     } else {
         $edit->{before} = $pica;
-        my $after = modify_record( $edit, $pica ); 
-        $edit->{after}  = $after;
+        $edit->{after}  = modify_record( $edit, $pica ); 
 
-#        use Text::Diff;
-#        my $a = [ map { "$_" } $edit->{before}->fields ];
-#        my $b = [ map { "$_" } $edit->{after}->fields ];
-#        $edit->{diff} = diff $a, $b;
-#      TODO
+        # check_whether_edit_done;
+        if ( $edit->{before}->as_string eq $edit->{after}->as_string ) {
+            info "Edit ".$edit->{edit}." already done";
+            mark_edit_as_done($edit->{edit}, 1, "detected that edit is done");
+        }
     }
+}
 
+sub mark_edit_as_done {
+    my ($id, $status, $message) = @_;
+
+    database->quick_update('edits', { edit => $id },
+        {
+          status => $status,
+          message => $message,           
+        } );
+    redirect "/edit/$id";
 }
 
 sub edit_done {
-    my $status  = 1*(param('status') || 0);
     my $edit    = param('edit') // '';
+    my $status  = 1*(param('status') || 0);
     my $message = param('message') // '';
+
+    ($edit, $status, $message) = @_ if @_;
 
     my $error;
     my %mal;
@@ -289,9 +315,8 @@ sub edit_done {
     } elsif ( $edit =~ /^\d+$/ ) {
         my $e = get_edit($edit);
         if ($e->{edit}) {
-            # INSERT INTO "edits" ("edit","status","message") VALUES (2,2,"warum?");
             database->quick_insert('edits', {
-                edit => $e->{edit} ,
+                edit => $e->{edit},# }, {
                 status => $status,
                 message => $message,           
             } );
@@ -475,8 +500,6 @@ create table if not exists "tokens" (
 SQL
 };
 
-if (config->{behind_proxy}) {
-    set behind_proxy => 1;
-}
+set behind_proxy => 1 if config->{behind_proxy};
 
 true;

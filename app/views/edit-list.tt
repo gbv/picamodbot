@@ -2,10 +2,11 @@
     Änderungen
     <div><small>
         Auch zum Abruf per HTTP als
-       <a href="[% uri_base %]/edit.json[% IF status >= -1 ; THEN %]?status=[% status ; END %]" class="btn btn-small">JSON</a> und 
+       <a href="[% uri_base %]/edit.json[% IF status >= -1 ; THEN %]?status=[% status ; END %]" class="btn btn-small">JSON</a>
+       <!--  und 
        <a href="[% uri_base %]/edit.xml[% IF status >= -1 ; THEN %]?status=[% status ; END %]" class="btn btn-small">
          <img src="[% uri_base %]/img/feed-icon-14x14.png">&#xA0;Atom
-       </a>
+       </a-->
     </small></div>
 </h1>
 

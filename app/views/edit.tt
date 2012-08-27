@@ -4,7 +4,9 @@
   [%- ELSIF attempts AND attempts.0.status == 2 %] alert-info">Die Änderung wurde ignoriert (kein Unterschied)
   [%- ELSIF attempts AND attempts.0.status > 0 %] alert-info">Die Änderung ist erledigt
   [%- ELSIF attempts AND attempts.0.status < 0 %]">Die Änderung wurde abgelehnt
-  [% ELSE %] alert-nope">Die Änderung steht noch aus[% END %]
+  [% ELSE %] alert-nope">Die Änderung steht noch aus 
+    &#xA0;<a href="[% base_uri %]/edit/[% edit %].check" class="btn btn-small">jetzt überprüfen</a>
+  [% END %]
 </div>
 <div>
 <table class="table" style="width:auto">

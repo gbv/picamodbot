@@ -36,7 +36,7 @@
   </tbody>
 </table>
 [% ELSE %]
- <p>Es liegen momentan keine Änderungen vor.</p>
+ <p><em>Es liegen momentan keine Änderungen vor.</em></p>
 [% END %]
 </div>
 </div>
