@@ -281,7 +281,7 @@ sub result_edit {
 
         # check_whether_edit_done;
         if ( $edit->{before}->as_string eq $edit->{after}->as_string ) {
-            info "Edit ".$edit->{edit}." already done";
+            info ("Edit ".$edit->{edit}." already done");
             mark_edit_as_done($edit->{edit}, 1, "detected that edit is done");
         }
     }
