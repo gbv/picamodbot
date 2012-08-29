@@ -2,4 +2,6 @@
 port    : 6024
 
 # deploy on remote machine
+# TODO: for 'padadoy init' different to push!
 remote  : 'picamodbot@dl380-19:~/repository'
+#remote  : 'picamodbot@dl380-19:~'

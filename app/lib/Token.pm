@@ -7,8 +7,6 @@ use warnings;
 use Carp;
 use Crypt::OpenSSL::Random;
 
-# an edit is just an unblessed hash reference
-
 use base 'Exporter';
 our @EXPORT = qw(new_token);
 

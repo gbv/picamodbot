@@ -1,3 +1,18 @@
+# picamodbot
+
+**picamodbot** is a web application to manage change requests in PICA+ records.
+
+## Background
+
+This application deals with PICA+ record which can be located in different
+databases. Each record is identified by an identifier:
+
+   dbkey:localid
+
+
+
+The current interface is in German 
+
 This application is used to collect change requests in PICA+ records.
 
 # Prerequisites

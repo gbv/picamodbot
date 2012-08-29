@@ -2,8 +2,6 @@ package GBV::App::picamodbot;
 #ABSTRACT: Hauptmodul der Webkomponente von picamodbot 
 
 use 5.010;
-use strict;
-use warnings;
 
 # TODO: simplify, by combining database tables
 
@@ -20,7 +18,8 @@ use POSIX;
 use Try::Tiny;
 
 # local libraries
-use Edit;
+
+use PICA::Edit::Request;
 use Token;
 
 use Net::IP::AddrRanges;
@@ -49,23 +48,22 @@ sub is_admin {
     return $admin_ips->find( address || '127.0.0.1' );
 }
 
-# Returns an edit created from request params and enriched
-# with `malformed` and `error` field.
+#use Clone qw(clone);
+
+# Returns an edit created from request params
 sub checked_edit {
-	my $edit = new_edit(
-		map { $_ => (param($_) // '') } qw(record deltags addfields iln eln),
-        ip => address,
-	);
 
-    return $edit if $edit->{error};
+    my $edit = PICA::Edit::Request->new(
+        id  => param('record'),
+        iln => param('iln'),
+        epn => param('epn'),
+        del => param('deltags'),
+        add => param('addfields')
+    );
 
-    try {
-        validate_edit( $edit, config->{unapi} );
-    } catch {
-        $edit->{error} = $_ // "invalid query";
-        $edit->{error} =~ s/ at .* line .*$//sm;
-        return $edit;
-    };
+    return $edit if $edit->error; # malformed
+
+    $edit->retrieve_and_perform( unAPI => config->{unapi} );
 
     # TODO: authentifizieren
     #my $access;
@@ -87,6 +85,7 @@ sub get_status {
 }
 
 sub get_changes {
+    # TODO: paging
 	my $changes = [ database->quick_select("changes", { }) ]; 
 	foreach my $i ( 0..(@$changes-1) ) {
         my $edit = $changes->[$i];
@@ -222,7 +221,9 @@ get qr{/edit/([^./]+)(\.html)?$} => sub {
         status(404);
         $edit->{title} = "Änderung nicht gefunden";
     } else {
-        validate_edit( $edit, config->{unapi} );
+
+        $edit->retrieve_and_perform( unAPI => config->{unapi} );
+
         $edit->{json} = JSON::Any->new(pretty =>1)->encode( $edit );
     }
     template 'edit' => $edit;
@@ -267,35 +268,18 @@ sub get_result {
 sub result_edit {
     my $edit = shift;
 
-    my $url = config->{unapi}.'id='.$edit->{record}.'&format=pp';
-    my $pica = eval { 
-        PICA::Record->new( LWP::Simple::get( $url ) ); 
-    };
-    if (!$pica) {
-        #$self->{malformed}->{record} //= "not found";
-        #croak "Failed to get PICA+ record";
-        #TODO: some error message?
-    } else {
-        $edit->{before} = $pica;
-        $edit->{after}  = modify_record( $edit, $pica ); 
-
-        # check_whether_edit_done;
-        if ( $edit->{before}->as_string eq $edit->{after}->as_string ) {
-            info ("Edit ".$edit->{edit}." already done");
-            mark_edit_as_done($edit->{edit}, 1, "detected that edit is done");
-        }
-    }
-}
-
-sub mark_edit_as_done {
-    my ($id, $status, $message) = @_;
-
-    database->quick_update('edits', { edit => $id },
-        {
-          status => $status,
-          message => $message,           
+    $edit->retrieve_and_perform( unAPI => config->{unapi} );
+    if ($edit->status == 2) {
+        #info ("Edit ".$edit->{edit}." already done");
+        my $status = 1;
+        my $message = "detected that edit is done";
+        my $id = $edit->{edit};
+        database->quick_update('edits', { edit => $id }, {
+              status => $status,
+              message => $message,           
         } );
-    redirect "/edit/$id";
+        redirect "/edit/$id";
+    }
 }
 
 sub edit_done {
@@ -475,13 +459,14 @@ hook 'before' => sub {
 
     database->do($_) for split '--', <<'SQL';
 create table if not exists "changes" (
-    edit    INTEGER PRIMARY KEY,
-	record  NOT NULL,
-	created DATETIME DEFAULT CURRENT_TIMESTAMP,
-	deltags,
-	addfields,
-    ip,
-	iln
+    `id`     NOT NULL
+    `iln`',
+    `epn`,
+    `add`,
+    `del`,
+    `edit_id` INTEGER PRIMARY KEY,
+	`created` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `creator`,
 );
 --
 create table if not exists "edits" (
