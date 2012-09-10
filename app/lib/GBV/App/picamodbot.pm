@@ -290,12 +290,24 @@ sub result_edit {
 sub mark_edit_as_done {
     my ($id, $status, $message) = @_;
 
-    database->quick_update('edits', { edit => $id },
+    info ("mark edit as done: $id, $status");
+
+    my $old = database->quick_lookup('edits', { edit => $id }, 'edit');
+    if (defined $old) {
+        database->quick_update('edits', { edit => $id },
         {
           status => $status,
           message => $message,           
         } );
-    redirect "/edit/$id";
+    } else {
+        database->quick_insert('edits', { 
+          edit => $id,
+          status => $status,
+          message => $message,           
+        } );
+    }
+
+    info ("marked as done, redirecting to /edit/$id");
 }
 
 sub edit_done {
