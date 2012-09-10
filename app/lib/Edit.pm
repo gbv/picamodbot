@@ -153,26 +153,34 @@ sub modify_record {
     my ($edit, $pica) = @_;
 
     my $iln = $edit->{iln};
-    my $eln = $edit->{eln};
+    my $epn = $edit->{epn};
     my $tags = [ split ',', $edit->{deltags} ];
 
     my $add = PICA::Record->new( $edit->{addfields} || '' );
 
     # new PICA record with all level0 fields but the ones to remove
-    my @level0 = grep /^0/, @$tags;
-    my @level1 = grep /^1/, @$tags;
-    my @level2 = grep /^2/, @$tags;
+    my @delevel0 = grep /^0/, @$tags;
+    my @delevel1 = grep /^1/, @$tags;
+    my @delevel2 = grep /^2/, @$tags;
 
     # Level 0
-    my $result = $pica->main;
-    $result->remove( @level0 ) if @level0;
+    my $result = PICA::Record->new( $pica->main );
+    $result->remove( @delevel0 ) if @delevel0;
     $result->append( $add->main );    
+
+#$pica->append( PICA::Field->new( '144Z' => '$aTag: testeintrag' ));
+$pica->sort;
+#is $after->as_string, $pica->as_string, 'modified record';
 
     # Level 1
     foreach my $h ( $pica->holdings ) {
-        if (@level1 and (!$iln or $h->iln eq $iln)) {
-            $h->remove( map { $_ =~ qr{/} ? $_ : "$_/.." } @level1 );
+        if (@delevel1 and (!$iln or $h->iln eq $iln)) {
+            $h->remove( map { $_ =~ qr{/} ? $_ : "$_/.." } @delevel1 );
         } 
+        if ($iln and $h->iln eq $iln) {
+            $result->append( grep { $_->tag =~ /^1/ } $add->fields );
+        }
+
         $result->append( $h->fields );
 
         # TODO: level2 noch nicht nicht unterstützt

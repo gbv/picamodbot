@@ -54,6 +54,13 @@
 	     Für PICA+ Felder der Ebene 1 und 2 ist diese Angabe notwendig, um die
          Felder der entsprechenden Einrichtung zuzuordnen.</td>
 	</tr>
+    <tr>
+	 <td><code>epn</code></td>
+     <td>Zahl</td>
+	 <td>EPN des Exemplars, für die die Änderung vorgenommen werden soll.
+	     Für PICA+ Felder der Ebene 2 ist diese Angabe notwendig, um die
+         Felder dem entsprechenden Exemplar zuzuordnen.</td>
+	</tr>
    </tbody>
   </table>
 </p>
@@ -80,9 +87,9 @@
    </fieldset>
  </div>
  <div class="span1">
-   <fieldset class="control-group [% IF malformed.eln %]error[% END %]">
-     <label for="eln">ELN</label>
-     <input class="input-small" id="eln" name="eln" value="[% eln|html %]"/>
+   <fieldset class="control-group [% IF malformed.epn %]error[% END %]">
+     <label for="epn">EPN</label>
+     <input class="input-small" id="epn" name="epn" value="[% epn|html %]"/>
    </fieldset>
  </div>
 </div>

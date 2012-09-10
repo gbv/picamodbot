@@ -53,7 +53,7 @@ sub is_admin {
 # with `malformed` and `error` field.
 sub checked_edit {
 	my $edit = new_edit(
-		map { $_ => (param($_) // '') } qw(record deltags addfields iln eln),
+		map { $_ => (param($_) // '') } qw(record deltags addfields iln epn),
         ip => address,
 	);
 
@@ -278,6 +278,9 @@ sub result_edit {
     } else {
         $edit->{before} = $pica;
         $edit->{after}  = modify_record( $edit, $pica ); 
+
+#warning "$pica";
+#warning $edit->{after}->as_string;
 
         # check_whether_edit_done;
         if ( $edit->{before}->as_string eq $edit->{after}->as_string ) {
