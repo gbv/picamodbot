@@ -281,7 +281,7 @@ sub result_edit {
 
         # check_whether_edit_done;
         if ( $edit->{before}->as_string eq $edit->{after}->as_string ) {
-            info ("Edit ".$edit->{edit}." already done");
+            #info ("Edit ".$edit->{edit}." already done");
             mark_edit_as_done($edit->{edit}, 1, "detected that edit is done");
         }
     }
@@ -290,7 +290,7 @@ sub result_edit {
 sub mark_edit_as_done {
     my ($id, $status, $message) = @_;
 
-    info ("mark edit as done: $id, $status");
+    #info ("mark edit as done: $id, $status");
 
     my $old = database->quick_lookup('edits', { edit => $id }, 'edit');
     if (defined $old) {
@@ -307,7 +307,7 @@ sub mark_edit_as_done {
         } );
     }
 
-    info ("marked as done, redirecting to /edit/$id");
+    #info ("marked as done, redirecting to /edit/$id");
 }
 
 sub edit_done {
