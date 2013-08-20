@@ -6,4 +6,21 @@ requires 'Plack::Middleware::XForwardedFor', '0';
 
 requires 'Test::JSON::Entails', '0.2';
 
+#        'Net::IP::AddrRanges' => 0,
+#        'Try::Tiny'     => 0,
+#        'LWP::Simple'   => 0,
+#        'Test::More'    => 0,
+#        'YAML'          => 0,
+#        'Dancer'        => 1.3091,
+#        'Plack::Runner' => 0,
+#        'Dancer::Plugin::Database' => 1.80,
+#        'Dancer::Plugin::REST'     => 0,
+#        'Dancer::Plugin::Feed'     => 0,
+#        'DateTime::Format::RFC3339' => 0,
+#        'POSIX'     => 0,
+#        'Test::JSON::Entails'      => 0.1,
+#        # ...
+#        'Crypt::OpenSSL::Random'   => 0.04,
+#        'Text::Diff'    => 1.37,
+
 requires 'PICA::Record', '0.584';

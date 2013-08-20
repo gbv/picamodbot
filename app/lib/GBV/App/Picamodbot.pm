@@ -10,6 +10,10 @@ use Plack::Builder;
 sub prepare_app {
     my $self = shift;
 
+    my $core = sub { 
+        [200,['Content-Type'=>'text/plain'],['Hello, Picamodbot!']]; 
+    };
+
     $self->{app} = builder {
 
         enable 'Plack::Middleware::XForwardedFor',
@@ -22,7 +26,7 @@ sub prepare_app {
                     root => $self->root,
                     pass_through => 1;
 
-            [200,['Content-Type'=>'text/plain'],['Hello, Picamodbot!']];
+            $core;
         }
 
     };
