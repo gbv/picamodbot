@@ -1,0 +1,18 @@
+<VirtualHost *:80>
+	ServerName picamodbot.gbv.de
+	ServerSignature Off
+
+	ProxyRequests Off
+	<Proxy *>
+        Order Allow,Deny
+	    Allow from all
+	</Proxy>
+	ProxyPass / http://localhost:6024/
+	ProxyPassReverse / http://localhost:6024/
+	ProxyVia On
+
+    # debug, info, notice, warn, error, crit, alert, emerg
+    LogLevel warn
+    ErrorLog ${APACHE_LOG_DIR}/picamodbot-error.log
+    CustomLog ${APACHE_LOG_DIR}/picamodbot-access.log common
+</VirtualHost>

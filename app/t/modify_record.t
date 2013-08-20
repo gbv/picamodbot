@@ -1,9 +1,13 @@
-use strict;
-use warnings;
-
 use Test::More;
+use v5.14;
+
 use PICA::Record;
 
+ok(1);
+
+done_testing;
+
+__END__
 use lib './lib';
 use Edit;
 

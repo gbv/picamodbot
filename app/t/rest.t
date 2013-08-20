@@ -2,6 +2,11 @@ use strict;
 use warnings;
 use Test::More;
 
+ok(1);
+
+done_testing
+
+__END__
 use GBV::App::picamodbot;
 use Dancer qw(:syntax !pass);
 use Dancer::Test;

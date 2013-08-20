@@ -1,0 +1,22 @@
+# Defaults for {$package_name} initscript
+# sourced by /etc/init.d/{$package_name}
+# installed at /etc/default/{$package_name} by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+APP="{$package_name}"
+APPDIR="/srv/$APP"
+APPLIB="/srv/$APP/lib"
+APPUSER={$package_name}
+
+PSGIAPP="{$psgi_script}"
+PIDFILE="/var/run/$APP.pid"
+
+PERLBREW_PATH="$APPDIR/local/bin"
+
+# arguments to run script
+DAEMON="$APPDIR/start"
+DAEMON_ARGS="-- $PSGIAPP --daemonize --user $APPUSER --preload-app --workers {$starman_workers} --pid $PIDFILE --port {$starman_port} --host 127.0.0.1 --error-log /var/log/$APP/error.log"
+

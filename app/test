@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# run all test
+if [ $# == 0 ]
+then
+    exec carton exec -- prove -Ilib t
+fi
+
+# run tests given a command line arguments
+for file in "$@"
+do
+    carton exec -- perl -Ilib $file
+done

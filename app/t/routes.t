@@ -1,7 +1,11 @@
-use strict;
-use warnings;
 use Test::More;
+use v5.14;
 
+ok(1);
+
+done_testing;
+
+__END__
 use GBV::App::picamodbot;
 use Dancer::Test;
 

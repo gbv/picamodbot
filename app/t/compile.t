@@ -1,5 +1,7 @@
-use Test::More tests => 1;
+use Test::More;
 use strict;
 use warnings;
 
-use_ok 'GBV::App::picamodbot';
+use_ok 'GBV::App::Picamodbot';
+
+done_testing;

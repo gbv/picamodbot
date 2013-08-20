@@ -1,0 +1,24 @@
+#!/bin/bash
+
+WEBSERVER=starman
+WEBSERVER_ARGS=
+
+while getopts "dc:h?" opt; do
+    case "$opt" in
+        h|\?)
+            echo "usage: $0 [-c config] [-d] [--] [plackup-arguments]" >&2
+            exit 0
+            ;;
+        c)
+            export PICAMODBOT_CONFIG=$OPTARG
+            ;;
+        d)
+            export PLACK_ENV=debug
+    	    WEBSERVER=plackup
+    	    WEBSERVER_ARGS=-r
+            ;;
+    esac
+done
+shift $((OPTIND-1)) # Shift off the options and optional --.
+
+exec carton exec -- $WEBSERVER -Ilib $WEBSERVER_ARGS $@ 

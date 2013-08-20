@@ -1,0 +1,8 @@
+app.psgi                        srv/{$package_name}
+start                           srv/{$package_name}
+cpanfile                        srv/{$package_name}
+cpanfile.snapshot               srv/{$package_name}
+lib/*                           srv/{$package_name}/lib
+root/*                          srv/{$package_name}/root
+local/*                         srv/{$package_name}/local
+config/apache/{$package_name}   etc/apache2/sites-available/
