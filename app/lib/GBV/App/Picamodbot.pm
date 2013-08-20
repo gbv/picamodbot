@@ -6,12 +6,17 @@ use parent 'Plack::Component';
 use Plack::Util::Accessor qw(root);
 
 use Plack::Builder;
+use Plack::Middleware::TemplateToolkit;
 
 sub prepare_app {
     my $self = shift;
 
-    my $core = sub { 
-        [200,['Content-Type'=>'text/plain'],['Hello, Picamodbot!']]; 
+    my $core = builder {
+
+        enable 'TemplateToolkit', 
+            INCLUDE_PATH => $self->root;
+
+        sub { [200,['Content-Type'=>'text/plain'],['Hello, Picamodbot!']]; };
     };
 
     $self->{app} = builder {
