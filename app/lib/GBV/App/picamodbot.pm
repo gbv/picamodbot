@@ -457,26 +457,7 @@ sub make_feed {
     return $feed;
 }
 
-# Atom Feed (TODO: add paging)
-get "/edit.xml" => sub {
-    make_feed( get_changes );
-};
-
-get "/queue.xml" => sub {
-    make_feed( get_queue );
-};
 =cut
-
-## Deprecated routes ###########################################################
-
-get "/changes" => sub { redirect '/edit' };
-get "/changes.json" => sub { redirect '/edit.json' };
-get "/changes.xml" => sub { redirect '/edit.xml' };
-
-get "/queue" => sub { redirect '/edit?status=0' };
-get "/queue.json" => sub { redirect '/edit.json?status=0' };
-get "/queue.xml" => sub { redirect '/edit.xml?status=0' };
-
 
 ## Initialize database on startup ##############################################
 

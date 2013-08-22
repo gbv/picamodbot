@@ -600,6 +600,14 @@ DISTRIBUTIONS
       IO::WrapTie::Slave 2.110
     requirements:
       ExtUtils::MakeMaker 0
+  JSON-Any-1.30
+    pathname: P/PE/PERIGRIN/JSON-Any-1.30.tar.gz
+    provides:
+      JSON::Any 1.30
+      inc::MakeMaker undef
+    requirements:
+      ExtUtils::MakeMaker 6.30
+      perl 5.008
   LWP-MediaTypes-6.02
     pathname: G/GA/GAAS/LWP-MediaTypes-6.02.tar.gz
     provides:
@@ -775,6 +783,12 @@ DISTRIBUTIONS
       IO::Select 0
       IO::Socket::INET 0
       perl 5.006002
+  Net-Netmask-1.9016
+    pathname: M/MU/MUIR/modules/Net-Netmask-1.9016.tar.gz
+    provides:
+      Net::Netmask 1.9016
+    requirements:
+      ExtUtils::MakeMaker 0
   Net-SSLeay-1.55
     pathname: M/MI/MIKEM/Net-SSLeay-1.55.tar.gz
     provides:
@@ -969,6 +983,24 @@ DISTRIBUTIONS
       parent 0
       strict 0
       warnings 0
+  Plack-Middleware-Rewrite-1.007
+    pathname: A/AR/ARISTOTLE/Plack-Middleware-Rewrite-1.007.tar.gz
+    provides:
+      Plack::Middleware::Rewrite 1.007
+    requirements:
+      ExtUtils::MakeMaker 6.30
+      HTTP::Request::Common 0
+      Plack 0.9942
+      Plack::Builder 0
+      Plack::Middleware 0
+      Plack::Request 0
+      Plack::Test 0
+      Plack::Util 0
+      Plack::Util::Accessor 0
+      Test::More 0
+      parent 0
+      strict 0
+      warnings 0
   Plack-Middleware-TemplateToolkit-0.26
     pathname: L/LL/LLAP/Plack-Middleware-TemplateToolkit-0.26.tar.gz
     provides:
@@ -1000,6 +1032,58 @@ DISTRIBUTIONS
       parent 0
       strict 0
       warnings 0
+  Plack-Middleware-XForwardedFor-0.103060
+    pathname: G/GB/GBARR/Plack-Middleware-XForwardedFor-0.103060.tar.gz
+    provides:
+      Plack::Middleware::XForwardedFor 0.103060
+    requirements:
+      ExtUtils::MakeMaker 6.31
+      Net::Netmask 1.9015
+      Plack 0.9913
+      Regexp::Common 2010010201
+      parent 0.223
+  Regexp-Common-2013031301
+    pathname: A/AB/ABIGAIL/Regexp-Common-2013031301.tar.gz
+    provides:
+      Regexp::Common 2013031301
+      Regexp::Common::CC 2010010201
+      Regexp::Common::Entry 2013031301
+      Regexp::Common::SEN 2010010201
+      Regexp::Common::URI 2010010201
+      Regexp::Common::URI::RFC1035 2010010201
+      Regexp::Common::URI::RFC1738 2010010201
+      Regexp::Common::URI::RFC1808 2010010201
+      Regexp::Common::URI::RFC2384 2010010201
+      Regexp::Common::URI::RFC2396 2010010201
+      Regexp::Common::URI::RFC2806 2010010201
+      Regexp::Common::URI::fax 2010010201
+      Regexp::Common::URI::file 2010010201
+      Regexp::Common::URI::ftp 2010010201
+      Regexp::Common::URI::gopher 2010010201
+      Regexp::Common::URI::http 2010010201
+      Regexp::Common::URI::news 2010010201
+      Regexp::Common::URI::pop 2010010201
+      Regexp::Common::URI::prospero 2010010201
+      Regexp::Common::URI::tel 2010010201
+      Regexp::Common::URI::telnet 2010010201
+      Regexp::Common::URI::tv 2010010201
+      Regexp::Common::URI::wais 2010010201
+      Regexp::Common::_support 2010010201
+      Regexp::Common::balanced 2013030901
+      Regexp::Common::comment 2010010201
+      Regexp::Common::delimited 2010010201
+      Regexp::Common::lingua 2010010201
+      Regexp::Common::list 2010010201
+      Regexp::Common::net 2013031301
+      Regexp::Common::number 2013031101
+      Regexp::Common::profanity 2010010201
+      Regexp::Common::whitespace 2010010201
+      Regexp::Common::zip 2010010201
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.00473
+      strict 0
+      vars 0
   Role-Tiny-1.003001
     pathname: H/HA/HAARG/Role-Tiny-1.003001.tar.gz
     provides:
@@ -1290,6 +1374,21 @@ DISTRIBUTIONS
       Test::More 0.47
       Try::Tiny 0.07
       overload 0
+      strict 0
+      warnings 0
+  Test-JSON-Entails-0.2
+    pathname: V/VO/VOJ/Test-JSON-Entails-0.2.tar.gz
+    provides:
+      Test::JSON::Entails 0.2
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.30
+      JSON::Any 0
+      Scalar::Util 0
+      Test::Builder::Module 0
+      Test::Builder::Tester 0
+      Test::More 0
+      base 0
       strict 0
       warnings 0
   Test-NoWarnings-1.04

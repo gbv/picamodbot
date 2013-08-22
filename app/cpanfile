@@ -3,8 +3,11 @@ requires 'Plack', '1.0';
 requires 'Plack::Middleware::TemplateToolkit', '0.26';
 requires 'Plack::Middleware::Negotiate', '0.06';
 requires 'Plack::Middleware::XForwardedFor', '0';
+requires 'Plack::Middleware::Rewrite', '1.007';
 
 requires 'Test::JSON::Entails', '0.2';
+
+requires 'Moo', '1.00';
 
 #        'Net::IP::AddrRanges' => 0,
 #        'Try::Tiny'     => 0,
